@@ -48,6 +48,7 @@ class UserRole(enum.Enum):
     PROGRAM_COORDINATOR = "PROGRAM_COORDINATOR"  # Studiengangskoordinatorin
     EXAMINATION_OFFICE = "EXAMINATION_OFFICE"  # Prüfungsamt
     DEANERY = "DEANERY"  # Dekanat
+    ADMIN = "ADMIN"  # Administrator
 
 
 class WorkflowStatus(enum.Enum):
@@ -97,9 +98,7 @@ class User(Base):
     """
 
     __tablename__ = "users"
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    user_id: Mapped[str] = mapped_column(String(50), primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -113,7 +112,7 @@ class User(Base):
     def __repr__(self):
         """Return a string representation of the user."""
         return (
-            f"<User(id='{self.id}', name='{self.name}', "
+            f"<User(id='{self.user_id}', name='{self.name}', "
             f"role='{self.role.value}')>"
         )
 
@@ -145,7 +144,7 @@ class Module(Base):
         String(50), unique=True, nullable=False
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    owner_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    owner_id: Mapped[str | None] = mapped_column(ForeignKey("users.user_id"))
     owner: Mapped[User] = relationship("User", back_populates="owned_modules")
     versions: Mapped[list[ModuleVersion]] = relationship(
         "ModuleVersion", back_populates="module", cascade="all, delete-orphan"
@@ -205,8 +204,8 @@ class ModuleVersion(Base):
         default=lambda: datetime.now(timezone.UTC),
         onupdate=lambda: datetime.now(timezone.UTC),
     )
-    last_editor_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id")
+    last_editor_id: Mapped[str | None] = mapped_column(
+        ForeignKey("users.user_id")
     )
     module: Mapped[Module] = relationship("Module", back_populates="versions")
     last_editor: Mapped[User] = relationship(
@@ -223,7 +222,10 @@ class ModuleVersion(Base):
 
     def __repr__(self):
         """Return a string representation of the module version."""
-        return f"<ModuleVersion(status='{self.status.value}', semester='{self.valid_from_semester}')>"  # noqa: E501
+        return (
+            f"<ModuleVersion(status='{self.status.value}', "
+            f"semester='{self.valid_from_semester}')>"
+        )
 
 
 class Translation(Base):
@@ -264,7 +266,10 @@ class Translation(Base):
 
     def __repr__(self):
         """Return a string representation of the translation."""
-        return f"<Translation(lang='{self.language}', title='{self.title}', outdated={self.is_outdated})>"  # noqa: E501
+        return (
+            f"<Translation(lang='{self.language}', title='{self.title}', "
+            f"outdated={self.is_outdated})>"
+        )
 
 
 class AuditLog(Base):
@@ -297,8 +302,8 @@ class AuditLog(Base):
     module_version_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("module_versions.id"), nullable=False
     )
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"), nullable=False
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.user_id"), nullable=False
     )
     action: Mapped[str] = mapped_column(String(100))
     comment: Mapped[str | None] = mapped_column(Text)
@@ -312,4 +317,7 @@ class AuditLog(Base):
 
     def __repr__(self):
         """Return a string representation of the audit log."""
-        return f"<AuditLog(action='{self.action}', user='{self.id}', time='{self.timestamp}')>"  # noqa: E501
+        return (
+            f"<AuditLog(action='{self.action}', user='{self.id}', "
+            f"time='{self.timestamp}')>"
+        )

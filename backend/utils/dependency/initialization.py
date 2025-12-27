@@ -27,6 +27,7 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "please1change1me")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 Oauth2_bearer_dep = Annotated[str, Depends(oauth2_bearer)]

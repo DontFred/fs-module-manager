@@ -22,7 +22,7 @@ def check_running(response: Response):
 
 
 @router.get("/ready", response_model=model.ReadyResponse)
-def check_ready(response: Response, db: db_dep):
+def check_ready(db: db_dep, response: Response):
     """Health check endpoint to verify external dependencies (Readiness).
 
     Checks database connectivity. Returns 503 if DB is unreachable.

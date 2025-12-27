@@ -17,6 +17,7 @@ select = [
 ignore = [
     "D203", # one-blank-line-before-class (conflicts with D211)
     "D213", # multi-line-summary-second-line (conflicts with D212)
+    "BLE001", # blind-except
 ]
 
 [lint.pydocstyle]

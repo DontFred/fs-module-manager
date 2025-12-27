@@ -20,10 +20,10 @@ def main():
     environment = os.getenv("ENVIRONMENT", "development")
     reload = True if environment == "development" else False
     logging.info(
-        f"Starting backend service on port {port} in {environment} mode...")
+        f"Starting backend service on port {port} in {environment} mode..."
+    )
     config_path = os.path.join(
-        os.path.dirname(__file__),
-        "utils", "logging", "logging_config.json"
+        os.path.dirname(__file__), "utils", "logging", "logging_config.json"
     )
     uvicorn.run(
         "api.initialization:app",
@@ -31,7 +31,7 @@ def main():
         port=port,
         reload=reload,
         log_config=config_path,
-        reload_dirs=["api", "utils", "db", "v0"]
+        reload_dirs=["api", "utils", "db", "v0"],
     )
 
 

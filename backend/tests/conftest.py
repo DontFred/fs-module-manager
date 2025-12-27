@@ -2,6 +2,7 @@
 
 Fixtures defined here are shared across multiple test modules.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 

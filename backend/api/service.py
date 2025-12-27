@@ -23,8 +23,9 @@ load_dotenv()
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["20/minute"],
-    enabled=False if os.getenv("ENVIRONMENT") == "development" else True
+    enabled=False if os.getenv("ENVIRONMENT") == "development" else True,
 )
+
 
 def register_api(app: FastAPI):
     """Register the router and configure middleware for API.
@@ -55,5 +56,3 @@ def register_api(app: FastAPI):
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
     app.add_middleware(SlowAPIMiddleware)
     app.include_router(health_router)
-
-

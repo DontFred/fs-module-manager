@@ -17,10 +17,7 @@ def setup_logging():
     adjusts the log level based on the environment, and applies the
     configuration to the logging system.
     """
-    config_path = os.path.join(
-        os.path.dirname(__file__),
-        "logging_config.json"
-    )
+    config_path = os.path.join(os.path.dirname(__file__), "logging_config.json")
     with open(config_path) as f:
         config = json.load(f)
 
@@ -31,6 +28,7 @@ def setup_logging():
         config["root"]["level"] = "DEBUG"
 
     logging.config.dictConfig(config)
+
 
 setup_logging()
 logger = logging.getLogger(__name__)

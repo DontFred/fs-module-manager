@@ -3,6 +3,7 @@
 It includes functions and configurations required to set up the database for
 the application.
 """
+
 import os
 
 from dotenv import load_dotenv
@@ -17,13 +18,16 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "please_change_me")
 DB_DATABASE = os.getenv("DB_DATABASE", "modules")
 environment = os.getenv("ENVIRONMENT", "development")
 
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@127.0.0.1:5432/{DB_DATABASE}"
+DATABASE_URL = (
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@127.0.0.1:5432/{DB_DATABASE}"
+)
 
 engine = create_engine(DATABASE_URL, echo=(environment == "development"))
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
 
 def get_db():
     """Get a database session.
@@ -41,4 +45,3 @@ def get_db():
         yield db
     finally:
         db.close()
-

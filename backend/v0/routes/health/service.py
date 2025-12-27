@@ -20,6 +20,7 @@ def is_server_running(response: Response) -> model.RunningResponse:
     response.status_code = status.HTTP_200_OK
     return model.RunningResponse(status="pass")
 
+
 def is_server_ready(db: Session, response: Response) -> model.ReadyResponse:
     """Check if the service is ready to handle requests (DB connection).
 

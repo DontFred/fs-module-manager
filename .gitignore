@@ -2,7 +2,6 @@
 */**/*.lock
 */**/*.log
 #*/**/*.env
-
 postgresql
 node_modules
 bun.lock

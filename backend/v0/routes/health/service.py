@@ -4,8 +4,8 @@ from fastapi import Response
 from fastapi import status
 from sqlalchemy import exc
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
+from utils.dependency.initialization import db_dep
 from utils.logging.logger import logging
 
 from . import model
@@ -21,11 +21,11 @@ def is_server_running(response: Response) -> model.RunningResponse:
     return model.RunningResponse(status="pass")
 
 
-def is_server_ready(db: Session, response: Response) -> model.ReadyResponse:
+def is_server_ready(db: db_dep, response: Response) -> model.ReadyResponse:
     """Check if the service is ready to handle requests (DB connection).
 
     Args:
-        db (Session): The database session.
+        db (db_dep): The database session.
         response (Response): The FastAPI response object to set status codes.
 
     Returns:

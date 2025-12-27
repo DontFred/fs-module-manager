@@ -5,11 +5,9 @@ service.
 """
 
 from fastapi import APIRouter
-from fastapi import Depends
 from fastapi import Response
-from sqlalchemy.orm import Session
 
-from db.initialzation import get_db
+from utils.dependency.initialization import db_dep
 
 from . import model
 from . import service
@@ -24,7 +22,7 @@ def check_running(response: Response):
 
 
 @router.get("/ready", response_model=model.ReadyResponse)
-def check_ready(response: Response, db: Session = Depends(get_db)):
+def check_ready(response: Response, db: db_dep):
     """Health check endpoint to verify external dependencies (Readiness).
 
     Checks database connectivity. Returns 503 if DB is unreachable.

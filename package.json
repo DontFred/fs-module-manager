@@ -13,7 +13,7 @@
     "dev:frontend": "cd frontend && bun run dev",
     "dev": "concurrently \"bun run dev:db\" \"bun run dev:backend\" \"bun run dev:frontend\"",
     "lint:frontend": "cd frontend && bun run lint --fix",
-    "lint:backend": "cd backend && uv run ruff check --fix && uv run format",
+    "lint:backend": "cd backend && uv run ruff check --fix && uv run ruff format",
     "lint": "concurrently \"bun run lint:frontend\" \"bun run lint:backend\"",
     "test:backend": "cd backend && uv run pytest",
     "test": "bun run test:backend",

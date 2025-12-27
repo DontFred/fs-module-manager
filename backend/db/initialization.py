@@ -7,9 +7,10 @@ the application.
 import os
 
 from dotenv import load_dotenv
+from sqlalchemy import Engine
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+
+from db.model import Base
 
 load_dotenv()
 
@@ -24,24 +25,9 @@ DATABASE_URL = (
 
 engine = create_engine(DATABASE_URL, echo=(environment == "development"))
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
-
-
-def get_db():
-    """Get a database session.
-
-    This function provides a database session for interacting with the
-    database. It ensures that the session is properly closed after use.
-
-    Yields:
-    -------
-    Session
-        A SQLAlchemy database session.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+def setup_database(engine: Engine = engine):
+    """Set up the database by creating all tables defined in the models."""
+    if environment == "development":
+        Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)

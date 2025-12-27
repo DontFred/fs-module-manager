@@ -19,7 +19,7 @@ from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from db.initialization import SessionLocal
+from db.initialization import engine
 
 load_dotenv()
 
@@ -29,10 +29,10 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-oauth2_bearer_dep = Annotated[str, Depends(oauth2_bearer)]
+Oauth2_bearer_dep = Annotated[str, Depends(oauth2_bearer)]
 
 
-async def get_current_user(token: oauth2_bearer_dep):
+async def get_current_user(token: Oauth2_bearer_dep):
     """Retrieve the current user based on the provided OAuth2 token.
 
     Parameters
@@ -68,7 +68,7 @@ async def get_current_user(token: oauth2_bearer_dep):
         )
 
 
-user_dep = Annotated[dict, Depends(get_current_user)]
+User_dep = Annotated[dict, Depends(get_current_user)]
 
 
 def get_db():
@@ -82,7 +82,7 @@ def get_db():
     Session
         A SQLAlchemy database session.
     """
-    db = SessionLocal()
+    db = Session(engine)
     try:
         yield db
     finally:

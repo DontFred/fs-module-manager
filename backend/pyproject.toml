@@ -1,0 +1,21 @@
+[project]
+name = "backend-fsmm"
+version = "0.1.0"
+description = "Backend for Module Manager"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.127.0",
+    "httpx>=0.28.1",
+    "psycopg2-binary>=2.9.11",
+    "pydantic>=2.12.5",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.2.1",
+    "slowapi>=0.1.9",
+    "sqlalchemy>=2.0.45",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
+]

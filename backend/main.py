@@ -1,3 +1,8 @@
+# Copyright (c) 2025 Frederik Grimm & Morgan Fritzsche
+# This source code is licensed under the CC BY-NC-SA 4.0 license found in the
+# LICENSE file in the root directory of this source tree.
+# NOT ALLOWED FOR COMMERCIAL USE.
+
 """Main module for the backend service.
 
 This module initializes the backend service, loads environment variables,

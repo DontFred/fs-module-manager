@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "clean": "rm -rf bun.lock && rm -rf node_modules",
+    "openapi-ts": "cd frontend && bun run openapi-ts",
     "dev:backend": "cd backend && uv run ./main.py",
     "dev:db": "docker compose up",
     "dev:frontend": "cd frontend && bun run dev",
@@ -17,6 +18,7 @@
     "lint": "concurrently \"bun run lint:frontend\" \"bun run lint:backend\"",
     "test:backend": "cd backend && uv run pytest",
     "test": "bun run test:backend",
+
     "prepare": "husky"
   },
   "devDependencies": {

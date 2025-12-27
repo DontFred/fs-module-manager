@@ -1,0 +1,30 @@
+{
+  "name": "fs-module-manager",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Full-Stack Module Manager",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "clean": "rm -rf bun.lock && rm -rf node_modules",
+    "dev:backend": "cd backend && uv run ./main.py",
+    "dev:db": "docker compose up",
+    "dev:frontend": "cd frontend && bun run dev",
+    "dev": "concurrently \"bun run dev:db\" \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "lint:frontend": "cd frontend && bun run lint --fix",
+    "lint:backend": "cd backend && uv run ruff check --fix && uv run format",
+    "lint": "concurrently \"bun run lint:frontend\" \"bun run lint:backend\"",
+    "test:backend": "cd backend && uv run pytest",
+    "test": "bun run test:backend",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

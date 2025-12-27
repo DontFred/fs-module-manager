@@ -4,3 +4,5 @@
 #*/**/*.env
 
 postgresql
+node_modules
+bun.lock

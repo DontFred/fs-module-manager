@@ -9,14 +9,13 @@ This module provides utility functions and dependencies for:
 import os
 from typing import Annotated
 
+import jwt
 from argon2 import PasswordHasher
 from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
-from jose import jwt
 from sqlalchemy.orm import Session
 
 from db.initialization import engine
@@ -44,10 +43,10 @@ argon2_hasher = PasswordHasher(
 
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-Oauth2_bearer_dep = Annotated[str, Depends(oauth2_bearer)]
+oauth2_bearer_dep = Annotated[str, Depends(oauth2_bearer)]
 
 
-async def get_current_user(token: Oauth2_bearer_dep):
+async def get_current_user(token: oauth2_bearer_dep):
     """Retrieve the current user based on the provided OAuth2 token.
 
     Parameters
@@ -77,14 +76,14 @@ async def get_current_user(token: Oauth2_bearer_dep):
                 detail="Could not validate user",
             )
         return {"name": name, "id": user_id, "role": role, "faculty": faculty}
-    except JWTError:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate user",
         )
 
 
-User_dep = Annotated[dict, Depends(get_current_user)]
+user_dep = Annotated[dict, Depends(get_current_user)]
 
 
 def get_db():

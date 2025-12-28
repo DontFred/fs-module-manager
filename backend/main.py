@@ -39,7 +39,7 @@ def main():
         port=port,
         reload=reload,
         log_config=config_path,
-        reload_dirs=["api", "utils", "db", "v0"],
+        reload_dirs=["api", "utils", "db"],
     )
 
 

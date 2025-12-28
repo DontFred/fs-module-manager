@@ -1,4 +1,4 @@
-"""This module contains utility classes and enums for database operations.
+"""This module contains classes and enums for api operations.
 
 It includes:
 - PaginationMeta: Metadata for paginated responses.

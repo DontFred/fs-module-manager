@@ -112,7 +112,7 @@ class User(Base):
 
     Attributes:
     ----------
-    id : uuid.UUID
+    id : str
         The unique identifier for the user.
     name : str
         The name of the user.

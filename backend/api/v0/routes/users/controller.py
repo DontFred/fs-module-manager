@@ -12,8 +12,8 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import Response
 
-from utils.database.model import FieldSelectionParams
-from utils.database.model import PaginatedResponse
+from api.model import FieldSelectionParams
+from api.model import PaginatedResponse
 from utils.dependency.initialization import db_dep
 
 from . import model

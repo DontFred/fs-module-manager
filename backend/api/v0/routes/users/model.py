@@ -11,9 +11,9 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
 
+from api.model import SortOrder
 from db.model import Faculty
 from db.model import UserRole
-from utils.database.model import SortOrder
 
 
 class UserBase(BaseModel):
@@ -99,7 +99,7 @@ class UserResponse(BaseModel):
 
     Attributes:
     ----------
-    user_id : str | None
+    user_id : int | None
         The unique identifier for the user.
     name : str | None
         The name of the user.

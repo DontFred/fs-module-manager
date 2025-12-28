@@ -9,6 +9,7 @@ This module provides utility functions and dependencies for:
 import os
 from typing import Annotated
 
+from argon2 import PasswordHasher
 from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi import HTTPException
@@ -16,17 +17,30 @@ from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from db.initialization import engine
+from db.model import Faculty
+from db.model import UserRole
 
 load_dotenv()
+
+ARGON_TIME_COST = int(os.getenv("ARGON_TIME_COST", 3))
+ARGON_MEMORY_COST = int(os.getenv("ARGON_MEMORY_COST", 65536))
+ARGON_PARALLELISM = int(os.getenv("ARGON_PARALLELISM", 4))
+ARGON_HASH_LENGTH = int(os.getenv("ARGON_HASH_LENGTH", 32))
+ARGON_SALT_LENGTH = int(os.getenv("ARGON_SALT_LENGTH", 16))
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "please1change1me")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
-bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+argon2_hasher = PasswordHasher(
+    time_cost=ARGON_TIME_COST,
+    memory_cost=ARGON_MEMORY_COST,
+    parallelism=ARGON_PARALLELISM,
+    hash_len=ARGON_HASH_LENGTH,
+    salt_len=ARGON_SALT_LENGTH,
+)
 
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
@@ -44,7 +58,7 @@ async def get_current_user(token: Oauth2_bearer_dep):
     Returns:
     -------
     dict
-        A dictionary containing the username, role and user ID.
+        A dictionary containing the name, role and user ID.
 
     Raises:
     ------
@@ -53,15 +67,16 @@ async def get_current_user(token: Oauth2_bearer_dep):
     """
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        username: str = payload.get("username")
-        role: str = payload.get("role")
-        user_id: int = payload.get("id")
-        if username is None or user_id is None or role is None:
+        name: str = payload.get("name")
+        role: UserRole = payload.get("role")
+        user_id: str = payload.get("id")
+        faculty: Faculty = payload.get("faculty")
+        if name is None or user_id is None or role is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate user",
             )
-        return {"username": username, "id": user_id, "role": role}
+        return {"name": name, "id": user_id, "role": role, "faculty": faculty}
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

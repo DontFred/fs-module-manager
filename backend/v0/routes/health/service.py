@@ -6,7 +6,7 @@ from sqlalchemy import exc
 from sqlalchemy import text
 
 from utils.dependency.initialization import db_dep
-from utils.logging.logger import logging
+from utils.logging.initialization import logging
 
 from . import model
 

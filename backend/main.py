@@ -15,7 +15,7 @@ import uvicorn
 from dotenv import load_dotenv
 
 from db.initialization import setup_database
-from utils.logging.logger import logging
+from utils.logging.initialization import logging
 
 
 def main():

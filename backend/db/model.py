@@ -29,29 +29,56 @@ class Base(DeclarativeBase):
     pass
 
 
-class UserRole(enum.Enum):
+class UserRole(str, enum.Enum):
     """Enumeration of user roles within the application.
 
     Attributes:
     ----------
     MODULE_OWNER : str
-        Represents a module owner (Modulverantwortlicher).
+        Represents a module owner.
     PROGRAM_COORDINATOR : str
-        Represents a program coordinator (Studiengangskoordinatorin).
+        Represents a program coordinator.
     EXAMINATION_OFFICE : str
-        Represents the examination office (Prüfungsamt).
+        Represents the examination office.
     DEANERY : str
-        Represents the deanery (Dekanat).
+        Represents the deanery.
+    ADMIN : str
+        Represents an server administrator.
     """
 
-    MODULE_OWNER = "MODULE_OWNER"  # Modulverantwortlicher
-    PROGRAM_COORDINATOR = "PROGRAM_COORDINATOR"  # Studiengangskoordinatorin
-    EXAMINATION_OFFICE = "EXAMINATION_OFFICE"  # Prüfungsamt
-    DEANERY = "DEANERY"  # Dekanat
-    ADMIN = "ADMIN"  # Administrator
+    MODULE_OWNER = "MODULE_OWNER"
+    PROGRAM_COORDINATOR = "PROGRAM_COORDINATOR"
+    EXAMINATION_OFFICE = "EXAMINATION_OFFICE"
+    DEANERY = "DEANERY"
+    ADMIN = "ADMIN"
 
 
-class WorkflowStatus(enum.Enum):
+class Faculty(str, enum.Enum):
+    """Enumeration of faculties within the application.
+
+    Attributes:
+    ----------
+    F1_MPM : str
+        Represents FB1 the Faculty of Mechanical Engineering, Process
+        Engineering, and Maritime Technology.
+    F2_ELS : str
+        Represents FB2 the Faculty of Energy and Life Sciences.
+    F3_IC : str
+        Represents FB3 the Faculty of Information and Communication.
+    F4_BS : str
+        Represents the Business School.
+    ADMIN : str
+        Represents administrative roles.
+    """
+
+    F1_MPM = "F1_MECHANICAL_PROCESS_MARITIME"
+    F2_ELS = "F2_ENERGY_LIFE_SCIENCE"
+    F3_IC = "F3_INFORMATION_COMMUNICATION"
+    F4_BS = "F4_BUSINESS_SCHOOL"
+    ADMIN = "ADMIN"
+
+
+class WorkflowStatus(str, enum.Enum):
     """Enumeration of workflow statuses within the application.
 
     Attributes:
@@ -100,8 +127,9 @@ class User(Base):
     __tablename__ = "users"
     user_id: Mapped[str] = mapped_column(String(50), primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    faculty: Mapped[Faculty] = mapped_column(Enum(Faculty), nullable=False)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
     owned_modules: Mapped[list[Module]] = relationship(
         "Module", back_populates="owner"
     )
@@ -113,7 +141,7 @@ class User(Base):
         """Return a string representation of the user."""
         return (
             f"<User(id='{self.user_id}', name='{self.name}', "
-            f"role='{self.role.value}')>"
+            f"faculty='{self.faculty.value}', role='{self.role.value}')>"
         )
 
 

@@ -9,9 +9,9 @@ from fastapi import Response
 from fastapi import status
 
 from db.model import User
-from utils.dependency.initialization import bcrypt_context
+from utils.dependency.initialization import argon2_hasher
 from utils.dependency.initialization import db_dep
-from utils.logging.logger import logging
+from utils.logging.initialization import logging
 
 from . import model
 
@@ -31,7 +31,10 @@ def get_all_users(db: db_dep, response: Response) -> list[model.UserResponse]:
         response.status_code = status.HTTP_200_OK
         return [
             model.UserResponse(
-                user_id=user.user_id, name=user.name, role=user.role
+                user_id=user.user_id,
+                name=user.name,
+                faculty=user.faculty,
+                role=user.role,
             )
             for user in users
         ]
@@ -64,40 +67,48 @@ def create_user(
             db.query(User).filter(User.user_id == user.user_id).first()
         )
     except Exception as e:
-        logging.error(f"Database error while checking existing user: {e}")
+        logging.error(
+            f"Database error while checking existing user before create: {e}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="A database error occurred.",
         )
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User already exists",
-        )
-    is_hash = bcrypt_context.identify(user.password)
-    if not is_hash:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be hashed",
-        )
-    new_user = User(
-        user_id=user.user_id,
-        name=user.name,
-        role=user.role,
-        password_hash=user.password,
-    )
     try:
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User already exists",
+            )
+        is_not_hash = argon2_hasher.check_needs_rehash(user.password)
+        if is_not_hash:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be hashed",
+            )
+        new_user = User(
+            user_id=user.user_id,
+            name=user.name,
+            faculty=user.faculty,
+            role=user.role,
+            password=user.password,
+        )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         response.status_code = status.HTTP_201_CREATED
         logging.info(f"Created new user with ID: {new_user.user_id}")
         return model.UserResponse(
-            user_id=new_user.user_id, name=new_user.name, role=new_user.role
+            user_id=new_user.user_id,
+            name=new_user.name,
+            faculty=new_user.faculty,
+            role=new_user.role,
         )
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
-        logging.error(f"Error while creating user: {e}")
+        logging.error(f"Error while adding user to database: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error occurred.",
@@ -125,7 +136,10 @@ def get_user_byid(
             )
         response.status_code = status.HTTP_200_OK
         return model.UserResponse(
-            user_id=user.user_id, name=user.name, role=user.role
+            user_id=user.user_id,
+            name=user.name,
+            faculty=user.faculty,
+            role=user.role,
         )
 
     except HTTPException:
@@ -161,21 +175,24 @@ def update_user(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
-        is_hash = bcrypt_context.identify(update_data.password)
-        if not is_hash:
+        is_not_hash = argon2_hasher.check_needs_rehash(update_data.password)
+        if is_not_hash:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Password must be hashed",
             )
         user.name = update_data.name
         user.role = update_data.role
-        user.password_hash = update_data.password
+        user.password = update_data.password
         db.commit()
         db.refresh(user)
         response.status_code = status.HTTP_200_OK
         logging.info(f"Updated user with ID: {user.user_id}")
         return model.UserResponse(
-            user_id=user.user_id, name=user.name, role=user.role
+            user_id=user.user_id,
+            name=user.name,
+            faculty=user.faculty,
+            role=user.role,
         )
     except HTTPException:
         raise
@@ -186,6 +203,59 @@ def update_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error occurred.",
         )
+
+
+def patch_user(
+    id: str, update_data: model.UserPatch, db: db_dep, response: Response
+) -> model.UserResponse:
+    """Partially update a user's data.
+
+    Args:
+        id (str): The unique identifier of the user to update.
+        update_data (model.UserPatch): The partial user data to update.
+        db (db_dep): The database session.
+        response (Response): The FastAPI response object to set status codes.
+
+    Returns:
+        model.UserResponse: The updated user data.
+
+    Raises:
+        HTTPException: If the user is not found, the password is not hashed, or
+        an error occurs.
+    """
+    try:
+        user = db.query(User).filter(User.user_id == id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
+        if update_data.password:
+            is_not_hash = argon2_hasher.check_needs_rehash(update_data.password)
+            if is_not_hash:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Password must be hashed",
+                )
+            user.password = update_data.password
+        if update_data.name:
+            user.name = update_data.name
+        if update_data.role:
+            user.role = update_data.role
+        db.commit()
+        db.refresh(user)
+        response.status_code = status.HTTP_200_OK
+        logging.info(f"Patched user with ID: {user.user_id}")
+        return model.UserResponse(
+            user_id=user.user_id,
+            name=user.name,
+            faculty=user.faculty,
+            role=user.role,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logging.error(f"Error while patching user: {e}")
 
 
 def delete_user(id: str, db: db_dep, response: Response) -> None:

@@ -16,9 +16,8 @@ def test_client():
     with TestClient(app) as client:
         yield client
 
+
 @pytest.fixture(scope="session", autouse=True)
 def setup() -> None:
     """Setup actions before any tests are run."""
     setup_database()
-
-

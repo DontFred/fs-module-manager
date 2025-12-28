@@ -27,9 +27,7 @@ def nuke_pave_seed(engine: Engine):
     users = mock_user()
 
     try:
-        db.add_all(
-            users
-        )
+        db.add_all(users)
         db.commit()
     except Exception as e:
         logging.error(f"Error while seeding database: {e}")

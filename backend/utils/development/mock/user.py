@@ -38,6 +38,7 @@ class UserSchema(BaseModel):
     password: str
     model_config = ConfigDict(from_attributes=True)
 
+
 def mock_user():
     """Create and return a list of mock User objects.
 
@@ -145,6 +146,7 @@ def mock_user():
         deanery_user,
         admin_user,
     ]
+
 
 def get_mock_user() -> list[UserSchema]:
     """Generate and return a list of mock user data as UserSchema objects.

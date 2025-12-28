@@ -11,6 +11,7 @@ from utils.development.mock.user import get_mock_user
 
 mock_user = get_mock_user()
 
+
 def test_get_all_users(test_client):
     """Test the /v0/users endpoint to get all users."""
     response = test_client.get("/v0/users")
@@ -18,18 +19,16 @@ def test_get_all_users(test_client):
     data = PaginatedResponse[model.UserResponse].model_validate(response.json())
     exceptdata = PaginatedResponse[model.UserResponse](
         data=[
-            model.UserResponse(
-                **user.model_dump(exclude={'password'})
-            ) for user in mock_user
+            model.UserResponse(**user.model_dump(exclude={"password"}))
+            for user in mock_user
         ],
         meta=PaginationMeta(
             total=len(mock_user),
-            page= 1,
+            page=1,
             limit=50,
             offset=0,
-            total_pages=int(len(mock_user) / 50) + 1
-        )
+            total_pages=int(len(mock_user) / 50) + 1,
+        ),
     )
 
     assert data == exceptdata
-

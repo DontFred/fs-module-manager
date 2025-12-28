@@ -3,6 +3,7 @@
 This module contains tests to verify the health status of the server
 using the /v0/health/running and /v0/health/ready endpoints.
 """
+
 from api.v0.routes.health.model import ReadyResponse
 from api.v0.routes.health.model import RunningResponse
 

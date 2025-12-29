@@ -74,18 +74,24 @@ def create_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="A database error occurred.",
         )
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already exists.",
+        )
     try:
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User already exists",
-            )
         is_not_hash = argon2_hasher.check_needs_rehash(user.password)
-        if is_not_hash:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Password must be hashed",
-            )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be hashed.",
+        )
+    if is_not_hash:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be hashed.",
+        )
+    try:
         new_user = User(
             user_id=user.user_id,
             name=user.name,
@@ -104,8 +110,6 @@ def create_user(
             faculty=new_user.faculty,
             role=new_user.role,
         )
-    except HTTPException:
-        raise
     except Exception as e:
         db.rollback()
         logging.error(f"Error while adding user to database: {e}")
@@ -130,26 +134,24 @@ def get_user_byid(
     """
     try:
         user = db.query(User).filter(User.user_id == id).first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
-        response.status_code = status.HTTP_200_OK
-        return model.UserResponse(
-            user_id=user.user_id,
-            name=user.name,
-            faculty=user.faculty,
-            role=user.role,
-        )
 
-    except HTTPException:
-        raise
     except Exception as e:
         logging.error(f"Error while retrieving user: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error occurred.",
         )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+        )
+    response.status_code = status.HTTP_200_OK
+    return model.UserResponse(
+        user_id=user.user_id,
+        name=user.name,
+        faculty=user.faculty,
+        role=user.role,
+    )
 
 
 def update_user(
@@ -171,17 +173,32 @@ def update_user(
     """
     try:
         user = db.query(User).filter(User.user_id == id).first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
+    except Exception as e:
+        logging.error(f"Error while retrieving user for update: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error occurred.",
+        )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+        )
+    try:
         is_not_hash = argon2_hasher.check_needs_rehash(update_data.password)
-        if is_not_hash:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Password must be hashed",
-            )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be hashed.",
+        )
+    if is_not_hash:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be hashed.",
+        )
+    try:
         user.name = update_data.name
+        user.faculty = update_data.faculty
         user.role = update_data.role
         user.password = update_data.password
         db.commit()
@@ -194,8 +211,6 @@ def update_user(
             faculty=user.faculty,
             role=user.role,
         )
-    except HTTPException:
-        raise
     except Exception as e:
         db.rollback()
         logging.error(f"Error while updating user: {e}")
@@ -225,22 +240,39 @@ def patch_user(
     """
     try:
         user = db.query(User).filter(User.user_id == id).first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+    except Exception as e:
+        logging.error(f"Error while retrieving user for patch: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error occurred.",
+        )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+        )
+    if update_data.password:
+        try:
+            is_not_hash = argon2_hasher.check_needs_rehash(
+                update_data.password
             )
-        if update_data.password:
-            is_not_hash = argon2_hasher.check_needs_rehash(update_data.password)
-            if is_not_hash:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Password must be hashed",
-                )
-            user.password = update_data.password
-        if update_data.name:
-            user.name = update_data.name
-        if update_data.role:
-            user.role = update_data.role
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be hashed.",
+            )
+        if is_not_hash:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be hashed.",
+            )
+        user.password = update_data.password
+    if update_data.name:
+        user.name = update_data.name
+    if update_data.faculty:
+        user.faculty = update_data.faculty
+    if update_data.role:
+        user.role = update_data.role
+    try:
         db.commit()
         db.refresh(user)
         response.status_code = status.HTTP_200_OK
@@ -251,11 +283,13 @@ def patch_user(
             faculty=user.faculty,
             role=user.role,
         )
-    except HTTPException:
-        raise
     except Exception as e:
         db.rollback()
         logging.error(f"Error while patching user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error occurred.",
+        )
 
 
 def delete_user(id: str, db: db_dep, response: Response) -> None:
@@ -271,16 +305,21 @@ def delete_user(id: str, db: db_dep, response: Response) -> None:
     """
     try:
         user = db.query(User).filter(User.user_id == id).first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
+    except Exception as e:
+        logging.error(f"Error while retrieving user for deletion: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error occurred.",
+        )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+        )
+    try:
         db.delete(user)
         db.commit()
         response.status_code = status.HTTP_204_NO_CONTENT
         logging.info(f"Deleted user with ID: {id}")
-    except HTTPException:
-        raise
     except Exception as e:
         db.rollback()
         logging.error(f"Error while deleting user: {e}")

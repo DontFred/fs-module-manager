@@ -252,9 +252,7 @@ def patch_user(
         )
     if update_data.password:
         try:
-            is_not_hash = argon2_hasher.check_needs_rehash(
-                update_data.password
-            )
+            is_not_hash = argon2_hasher.check_needs_rehash(update_data.password)
         except Exception:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

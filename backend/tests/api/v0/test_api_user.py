@@ -582,6 +582,7 @@ def test_update_user_unhashed_password(test_client):
     data = response.json()
     assert data["detail"] == "Password must be hashed."
 
+
 def test_patch_user(test_client):
     """Test the /v0/users/{user_id} endpoint to patch a user's details."""
     target_user = mock_user[1]
@@ -598,6 +599,7 @@ def test_patch_user(test_client):
     assert data.faculty == target_user.faculty
     assert data.role == target_user.role
 
+
 def test_patch_user_not_found(test_client):
     """Test the /v0/users/{user_id} endpoint for patching a non-existing user."""  # noqa: E501
     patch_data = {
@@ -607,6 +609,7 @@ def test_patch_user_not_found(test_client):
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "User not found."
+
 
 def test_patch_user_unhashed_password(test_client):
     """Test the /v0/users/{user_id} endpoint to patch a user with an unhashed password."""  # noqa: E501
@@ -621,6 +624,7 @@ def test_patch_user_unhashed_password(test_client):
     data = response.json()
     assert data["detail"] == "Password must be hashed."
 
+
 def test_delete_user(test_client):
     """Test the /v0/users/{user_id} endpoint to delete a user."""
     target_user = mock_user[2]
@@ -629,6 +633,7 @@ def test_delete_user(test_client):
     # Verify the user is deleted
     get_response = test_client.get(f"/v0/users/{target_user.user_id}")
     assert get_response.status_code == 404
+
 
 def test_delete_user_not_found(test_client):
     """Test the /v0/users/{user_id} endpoint for deleting a non-existing user."""  # noqa: E501

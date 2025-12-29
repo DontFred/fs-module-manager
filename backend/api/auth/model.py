@@ -6,9 +6,6 @@ authorization.
 
 from pydantic import BaseModel
 
-from db.model import Faculty
-from db.model import UserRole
-
 
 class Token(BaseModel):
     """Represents an authentication token.
@@ -26,18 +23,18 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    """Represents data associated with an authentication token.
+    """Represents data stored in a token.
 
     Attributes:
     ----------
+    id : str | None
+        The unique identifier of the user (optional).
     name : str | None
-        The name of the user associated with the token.
-    faculty : Faculty | None
-        The faculty or department of the user.
-    role : UserRole | None
-        The role of the user, e.g., "admin" or "student".
+        The name of the user (optional).
+    scopes : list[str]
+        The list of scopes or permissions associated with the token.
     """
 
+    id: str | None = None
     name: str | None = None
-    faculty: Faculty | None = None
-    role: UserRole | None = None
+    scopes: list[str] = []

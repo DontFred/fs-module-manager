@@ -132,6 +132,7 @@ def get_user(
     Args:
         id (str): The unique identifier of the user.
         db (db_dep): The database session.
+        user_token (user_admin_dep): The authenticated user token.
         response (Response): The FastAPI response object to set status codes.
         params (FieldSelectionParams): Query parameters for field selection.
 

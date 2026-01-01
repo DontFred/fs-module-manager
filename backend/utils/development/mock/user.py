@@ -13,6 +13,8 @@ from db.model import Faculty
 from db.model import User
 from db.model import UserRole
 
+password: str = "password"
+
 
 class UserSchema(BaseModel):
     """A schema representing a user.
@@ -58,49 +60,49 @@ def mock_user():
         name="Module Owner Faculty1",
         faculty=Faculty.F1_MPM,
         role=UserRole.MODULE_OWNER,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     module_owner_f2_user = User(
         user_id="12",
         name="Module Owner Faculty2",
         faculty=Faculty.F2_ELS,
         role=UserRole.MODULE_OWNER,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     module_owner_f3_user = User(
         user_id="13",
         name="Module Owner Faculty3",
         faculty=Faculty.F3_IC,
         role=UserRole.MODULE_OWNER,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     module_owner_f4_user = User(
         user_id="14",
         name="Module Owner Faculty4",
         faculty=Faculty.F4_BS,
         role=UserRole.MODULE_OWNER,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     program_coordinator_f1_user = User(
         user_id="21",
         name="Program Coordinator Faculty1",
         faculty=Faculty.F1_MPM,
         role=UserRole.PROGRAM_COORDINATOR,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     program_coordinator_f2_user = User(
         user_id="22",
         name="Program Coordinator Faculty2",
         faculty=Faculty.F2_ELS,
         role=UserRole.PROGRAM_COORDINATOR,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     program_coordinator_f3_user = User(
         user_id="23",
         name="Program Coordinator Faculty3",
         faculty=Faculty.F3_IC,
         role=UserRole.PROGRAM_COORDINATOR,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
 
     program_coordinator_f4_user = User(
@@ -108,7 +110,7 @@ def mock_user():
         name="Program Coordinator Faculty4",
         faculty=Faculty.F4_BS,
         role=UserRole.PROGRAM_COORDINATOR,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
 
     examination_office_user = User(
@@ -116,21 +118,49 @@ def mock_user():
         name="Examination Office",
         role=UserRole.EXAMINATION_OFFICE,
         faculty=Faculty.ADMIN,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     deanery_user = User(
         user_id="45",
         name="Deanery",
         role=UserRole.DEANERY,
         faculty=Faculty.ADMIN,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
     )
     admin_user = User(
         user_id="55",
         name="Admin",
         faculty=Faculty.ADMIN,
         role=UserRole.ADMIN,
-        password=argon2_hasher.hash("password"),
+        password=argon2_hasher.hash(password),
+    )
+    update_user = User(
+        user_id="61",
+        name="Update User",
+        faculty=Faculty.F1_MPM,
+        role=UserRole.MODULE_OWNER,
+        password=argon2_hasher.hash(password),
+    )
+    patch_user = User(
+        user_id="71",
+        name="Patch User",
+        faculty=Faculty.F2_ELS,
+        role=UserRole.PROGRAM_COORDINATOR,
+        password=argon2_hasher.hash(password),
+    )
+    delete_user = User(
+        user_id="81",
+        name="Delete User",
+        faculty=Faculty.F3_IC,
+        role=UserRole.MODULE_OWNER,
+        password=argon2_hasher.hash(password),
+    )
+    delete_fail_user = User(
+        user_id="82",
+        name="Delete Fail User",
+        faculty=Faculty.F3_IC,
+        role=UserRole.MODULE_OWNER,
+        password=argon2_hasher.hash(password),
     )
 
     return [
@@ -145,6 +175,10 @@ def mock_user():
         examination_office_user,
         deanery_user,
         admin_user,
+        update_user,
+        patch_user,
+        delete_user,
+        delete_fail_user,
     ]
 
 

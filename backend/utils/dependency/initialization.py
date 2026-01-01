@@ -120,28 +120,24 @@ async def get_current_user(
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
         authenticate_value = "Bearer"
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": authenticate_value},
-    )
-    try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        name: str = payload.get("name")
-        user_id: str = payload.get("id")
-        scopes: str = payload.get("scope")
-        if name is None or user_id is None or scopes is None:
-            raise credentials_exception
-        for scope in security_scopes.scopes:
-            if scope not in scopes.split(" "):
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Not enough permissions",
-                    headers={"WWW-Authenticate": authenticate_value},
-                )
-        return UserToken(name=name, id=user_id, scopes=scopes)
-    except Exception:
-        raise credentials_exception
+    payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    name: str = payload.get("name")
+    user_id: str = payload.get("id")
+    scopes: str = payload.get("scope")
+    if name is None or user_id is None or scopes is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unable to validate credentials",
+            headers={"WWW-Authenticate": authenticate_value},
+        )
+    for scope in security_scopes.scopes:
+        if scope not in scopes.split(" "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
+    return UserToken(name=name, id=user_id, scopes=scopes)
 
 
 user_dep = Annotated[UserToken, Depends(get_current_user)]

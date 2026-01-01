@@ -103,7 +103,6 @@ def create_user(
         db.commit()
         db.refresh(new_user)
         response.status_code = status.HTTP_201_CREATED
-        logging.info(f"Created new user with ID: {new_user.user_id}")
         return model.UserResponse(
             user_id=new_user.user_id,
             name=new_user.name,
@@ -204,7 +203,6 @@ def update_user(
         db.commit()
         db.refresh(user)
         response.status_code = status.HTTP_200_OK
-        logging.info(f"Updated user with ID: {user.user_id}")
         return model.UserResponse(
             user_id=user.user_id,
             name=user.name,
@@ -274,7 +272,6 @@ def patch_user(
         db.commit()
         db.refresh(user)
         response.status_code = status.HTTP_200_OK
-        logging.info(f"Patched user with ID: {user.user_id}")
         return model.UserResponse(
             user_id=user.user_id,
             name=user.name,
@@ -317,7 +314,6 @@ def delete_user(id: str, db: db_dep, response: Response) -> None:
         db.delete(user)
         db.commit()
         response.status_code = status.HTTP_204_NO_CONTENT
-        logging.info(f"Deleted user with ID: {id}")
     except Exception as e:
         db.rollback()
         logging.error(f"Error while deleting user: {e}")

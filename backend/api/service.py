@@ -16,7 +16,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
-from api.auth.controller import router as auth_router
+from api.v0.routes.auth.controller import router as auth_router
 from api.v0.routes.health.controller import router as health_router
 from api.v0.routes.users.controller import router as users_router
 

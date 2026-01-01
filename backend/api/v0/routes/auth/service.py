@@ -96,13 +96,13 @@ async def authenticate_for_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect user_id or password",
+            detail="Incorrect user_id or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     if not argon2_hasher.verify(user.password, form_data.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect user_id or password",
+            detail="Incorrect user_id or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES)

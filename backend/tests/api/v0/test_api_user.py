@@ -483,6 +483,13 @@ def test_get_all_users_with_pagination(test_client, admin_user_login):
     assert data == exceptdata
 
 
+def test_get_all_users_unauthorized(test_client):
+    """Test the /v0/users endpoint without authorization header."""
+    response = test_client.get("/v0/users")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
+
 def test_create_user(test_client, admin_user_login):
     """Test the /v0/users endpoint to create a new user."""
     headers = {"Authorization": f"Bearer {admin_user_login}"}
@@ -536,6 +543,34 @@ def test_create_user_unhashed_password(test_client, admin_user_login):
     assert data["detail"] == "Password must be hashed."
 
 
+def test_create_user_unauthorized(test_client):
+    """Test create user endpoint without authorization header."""
+    new_user = {
+        "user_id": "auth_test_user",
+        "name": "Auth Test",
+        "faculty": "F1_MECHANICAL_PROCESS_MARITIME",
+        "role": "MODULE_OWNER",
+        "password": argon2_hasher.hash("password"),
+    }
+    response = test_client.post("/v0/users", json=new_user)
+    assert response.status_code == 401
+
+
+def test_create_user_insufficient_permissions(test_client, f1_mo_user_login):
+    """Test create user endpoint with a non-admin user (Module Owner)."""
+    headers = {"Authorization": f"Bearer {f1_mo_user_login}"}
+    new_user = {
+        "user_id": "auth_test_user_2",
+        "name": "Auth Test 2",
+        "faculty": "F1_MECHANICAL_PROCESS_MARITIME",
+        "role": "MODULE_OWNER",
+        "password": argon2_hasher.hash("password"),
+    }
+    response = test_client.post("/v0/users", json=new_user, headers=headers)
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not enough permissions"
+
+
 def test_get_user_by_id(test_client, admin_user_login):
     """Test the /v0/users/{user_id} endpoint to get a user by user_id."""
     headers = {"Authorization": f"Bearer {admin_user_login}"}
@@ -574,6 +609,13 @@ def test_get_user_by_id_with_field_selection(test_client, admin_user_login):
     assert data.name == target_user.name
     assert data.faculty is None
     assert data.role is None
+
+
+def test_get_user_by_id_unauthorized(test_client):
+    """Test get user by ID endpoint without authorization header."""
+    target_user = mock_user[0]
+    response = test_client.get(f"/v0/users/{target_user.user_id}")
+    assert response.status_code == 401
 
 
 def test_update_user(test_client, admin_user_login):
@@ -636,6 +678,40 @@ def test_update_user_unhashed_password(test_client, admin_user_login):
     assert data["detail"] == "Password must be hashed."
 
 
+def test_update_user_unauthorized(test_client):
+    """Test update user endpoint without authorization header."""
+    target_user = mock_user[11]
+    updated_data = {
+        "name": "Updated Fail Name",
+        "faculty": "F4_BUSINESS_SCHOOL",
+        "role": "ADMIN",
+        "password": argon2_hasher.hash("newsecurepassword"),
+    }
+    response = test_client.put(
+        f"/v0/users/{target_user.user_id}", json=updated_data
+    )
+    assert response.status_code == 401
+
+
+def test_update_user_insufficient_permissions(test_client, f1_mo_user_login):
+    """Test update user endpoint with a non-admin user (Module Owner)."""
+    headers = {"Authorization": f"Bearer {f1_mo_user_login}"}
+    target_user = mock_user[11]
+    updated_data = {
+        "name": "Updated Fail Name",
+        "faculty": "F4_BUSINESS_SCHOOL",
+        "role": "ADMIN",
+        "password": argon2_hasher.hash("newsecurepassword"),
+    }
+    response = test_client.put(
+        f"/v0/users/{target_user.user_id}",
+        json=updated_data,
+        headers=headers,
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not enough permissions"
+
+
 def test_patch_user(test_client, admin_user_login):
     """Test the /v0/users/{user_id} endpoint to patch a user's details."""
     headers = {"Authorization": f"Bearer {admin_user_login}"}
@@ -687,6 +763,30 @@ def test_patch_user_unhashed_password(test_client, admin_user_login):
     assert data["detail"] == "Password must be hashed."
 
 
+def test_patch_user_unauthorized(test_client):
+    """Test patch user endpoint without authorization header."""
+    target_user = mock_user[12]
+    patch_data = {"name": "Unauthorized Patch"}
+    response = test_client.patch(
+        f"/v0/users/{target_user.user_id}", json=patch_data
+    )
+    assert response.status_code == 401
+
+
+def test_patch_user_insufficient_permissions(test_client, f1_mo_user_login):
+    """Test patch user endpoint with a non-admin user (Module Owner)."""
+    headers = {"Authorization": f"Bearer {f1_mo_user_login}"}
+    target_user = mock_user[12]
+    patch_data = {"name": "Forbidden Patch"}
+    response = test_client.patch(
+        f"/v0/users/{target_user.user_id}",
+        json=patch_data,
+        headers=headers,
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not enough permissions"
+
+
 def test_delete_user(test_client, admin_user_login):
     """Test the /v0/users/{user_id} endpoint to delete a user."""
     headers = {"Authorization": f"Bearer {admin_user_login}"}
@@ -711,111 +811,6 @@ def test_delete_user_not_found(test_client, admin_user_login):
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "User not found."
-
-
-# --------------------------------------------------------------------------
-# AUTHENTICATION TESTS
-# --------------------------------------------------------------------------
-
-
-def test_get_all_users_unauthorized(test_client):
-    """Test the /v0/users endpoint without authorization header."""
-    response = test_client.get("/v0/users")
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Not authenticated"
-
-
-def test_create_user_unauthorized(test_client):
-    """Test create user endpoint without authorization header."""
-    new_user = {
-        "user_id": "auth_test_user",
-        "name": "Auth Test",
-        "faculty": "F1_MECHANICAL_PROCESS_MARITIME",
-        "role": "MODULE_OWNER",
-        "password": argon2_hasher.hash("password"),
-    }
-    response = test_client.post("/v0/users", json=new_user)
-    assert response.status_code == 401
-
-
-def test_create_user_insufficient_permissions(test_client, f1_mo_user_login):
-    """Test create user endpoint with a non-admin user (Module Owner)."""
-    headers = {"Authorization": f"Bearer {f1_mo_user_login}"}
-    new_user = {
-        "user_id": "auth_test_user_2",
-        "name": "Auth Test 2",
-        "faculty": "F1_MECHANICAL_PROCESS_MARITIME",
-        "role": "MODULE_OWNER",
-        "password": argon2_hasher.hash("password"),
-    }
-    response = test_client.post("/v0/users", json=new_user, headers=headers)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Not enough permissions"
-
-
-def test_get_user_by_id_unauthorized(test_client):
-    """Test get user by ID endpoint without authorization header."""
-    target_user = mock_user[0]
-    response = test_client.get(f"/v0/users/{target_user.user_id}")
-    assert response.status_code == 401
-
-
-def test_update_user_unauthorized(test_client):
-    """Test update user endpoint without authorization header."""
-    target_user = mock_user[11]
-    updated_data = {
-        "name": "Updated Fail Name",
-        "faculty": "F4_BUSINESS_SCHOOL",
-        "role": "ADMIN",
-        "password": argon2_hasher.hash("newsecurepassword"),
-    }
-    response = test_client.put(
-        f"/v0/users/{target_user.user_id}", json=updated_data
-    )
-    assert response.status_code == 401
-
-
-def test_update_user_insufficient_permissions(test_client, f1_mo_user_login):
-    """Test update user endpoint with a non-admin user (Module Owner)."""
-    headers = {"Authorization": f"Bearer {f1_mo_user_login}"}
-    target_user = mock_user[11]
-    updated_data = {
-        "name": "Updated Fail Name",
-        "faculty": "F4_BUSINESS_SCHOOL",
-        "role": "ADMIN",
-        "password": argon2_hasher.hash("newsecurepassword"),
-    }
-    response = test_client.put(
-        f"/v0/users/{target_user.user_id}",
-        json=updated_data,
-        headers=headers,
-    )
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Not enough permissions"
-
-
-def test_patch_user_unauthorized(test_client):
-    """Test patch user endpoint without authorization header."""
-    target_user = mock_user[12]
-    patch_data = {"name": "Unauthorized Patch"}
-    response = test_client.patch(
-        f"/v0/users/{target_user.user_id}", json=patch_data
-    )
-    assert response.status_code == 401
-
-
-def test_patch_user_insufficient_permissions(test_client, f1_mo_user_login):
-    """Test patch user endpoint with a non-admin user (Module Owner)."""
-    headers = {"Authorization": f"Bearer {f1_mo_user_login}"}
-    target_user = mock_user[12]
-    patch_data = {"name": "Forbidden Patch"}
-    response = test_client.patch(
-        f"/v0/users/{target_user.user_id}",
-        json=patch_data,
-        headers=headers,
-    )
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Not enough permissions"
 
 
 def test_delete_user_unauthorized(test_client):

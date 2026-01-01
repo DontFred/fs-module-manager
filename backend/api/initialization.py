@@ -4,6 +4,11 @@ from fastapi import FastAPI
 
 from api.service import register_api
 
-app = FastAPI(docs_url="/v0/docs", redoc_url=None)
+app = FastAPI(
+    docs_url="/v0/docs",
+    redoc_url=None,
+    openapi_url="/v0/openapi.json",
+    title="Module Manager API",
+)
 
 register_api(app)

@@ -1,4 +1,4 @@
-"""Logger utility module.
+"""Logger initialization module.
 
 This module sets up logging for the application, including log level,
 format, and output file configuration. It uses environment variables

@@ -14,7 +14,8 @@ import os
 import uvicorn
 from dotenv import load_dotenv
 
-from utils.logging.logger import logging
+from db.initialization import setup_database
+from utils.logging.initialization import logging
 
 
 def main():
@@ -24,6 +25,8 @@ def main():
     port = int(os.getenv("BACKEND_PORT", 8000))
     environment = os.getenv("ENVIRONMENT", "development")
     reload = True if environment == "development" else False
+    logging.debug("Setting up the database...")
+    setup_database()
     logging.info(
         f"Starting backend service on port {port} in {environment} mode..."
     )
@@ -36,7 +39,7 @@ def main():
         port=port,
         reload=reload,
         log_config=config_path,
-        reload_dirs=["api", "utils", "db", "v0"],
+        reload_dirs=["api", "utils", "db"],
     )
 
 

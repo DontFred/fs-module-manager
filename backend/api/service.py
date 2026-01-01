@@ -16,7 +16,9 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
-from v0.routes.health.controller import router as health_router
+from api.v0.routes.auth.controller import router as auth_router
+from api.v0.routes.health.controller import router as health_router
+from api.v0.routes.users.controller import router as users_router
 
 load_dotenv()
 
@@ -55,4 +57,6 @@ def register_api(app: FastAPI):
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
     app.add_middleware(SlowAPIMiddleware)
+    app.include_router(auth_router)
     app.include_router(health_router)
+    app.include_router(users_router)

@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "openapi-ts && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "openapi-ts": "openapi-ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -20,12 +21,14 @@
   "devDependencies": {
     "@eslint/compat": "^2.0.0",
     "@eslint/js": "^9.39.2",
+    "@hey-api/openapi-ts": "^0.89.2",
     "@next/eslint-plugin-next": "^16.1.1",
     "@stylistic/eslint-plugin": "^3.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/parser": "^8.50.1",
     "eslint": "^9.39.2",
     "eslint-config-airbnb-extended": "^2.3.3",
     "eslint-config-next": "16.1.1",

@@ -253,7 +253,6 @@ def get_all_modules(
                 if mod.versions
                 else None
             )
-
             mod_resp = model.ModuleResponse(
                 id=mod.id,
                 module_number=mod.module_number,
@@ -270,6 +269,17 @@ def get_all_modules(
                 if latest_released_version
                 else None,
             )
+            if params.fields:
+                requested_fields = [
+                    field.strip() for field in params.fields.split(",")
+                ]
+                mod_resp = model.ModuleResponse(
+                    **{
+                        field: getattr(mod_resp, field)
+                        for field in requested_fields
+                        if hasattr(mod_resp, field)
+                    }
+                )
             response_data.append(mod_resp)
 
         return PaginatedResponse[model.ModuleResponse](
@@ -280,9 +290,7 @@ def get_all_modules(
                 "limit": params.limit,
                 "offset": params.offset,
                 "total_pages": int((total_items - params.offset) / params.limit)
-                + 1
-                if total_items > 0
-                else 1,
+                + 1,
             },
         )
 
@@ -863,8 +871,11 @@ def update_version_content(
 
     if (
         user_token.id != version.module.owner_id
-        and version.last_editor_id is not None
-    ) or user_token.scopes != "admin":
+    ) and user_token.scopes != "admin":
+        logger.debug(f"User {user_token.id} is not the owner "
+                     f"{version.module.owner_id} of the module "
+                     f"{version.module.id} and cannot update the version "
+                     f"{version.id}.")
         raise HTTPException(
             status_code=403,
             detail="Only the owner can update this version.",

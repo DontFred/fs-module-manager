@@ -78,12 +78,12 @@ def mock_translations(
     return translations
 
 
-def get_mock_translations() -> list[Translation]:
+def get_mock_translations() -> list[TranslationSchema]:
     """Retrieve mock Translation objects for development purposes.
 
     Returns:
     -------
-    list[Translation]
+    list[TranslationSchema]
         A list of mock Translation objects.
     """
     from .modules import mock_modules

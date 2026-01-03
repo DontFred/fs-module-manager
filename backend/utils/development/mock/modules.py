@@ -102,17 +102,22 @@ def mock_modules(mock_user_data: list[User]) -> list[Module]:
     return modules
 
 
-def get_mock_modules() -> list[Module]:
+def get_mock_modules() -> list[ModuleSchema]:
     """Retrieve mock Module objects for development purposes.
 
     Returns:
     -------
-    list[Module]
+    list[ModuleSchema]
         A list of Module objects containing mock data for different faculties.
     """
     from .user import mock_user
 
     users = mock_user()
+    modules = mock_modules(users)
+
+    for module in modules:
+        module.owner_id = module.owner.user_id
+
     return [
-        ModuleSchema.model_validate(module) for module in mock_modules(users)
+        ModuleSchema.model_validate(module) for module in modules
     ]

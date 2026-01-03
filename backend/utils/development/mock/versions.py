@@ -116,5 +116,13 @@ def get_mock_versions() -> list[ModuleVersion]:
 
     users = mock_user()
     modules = mock_modules(users)
+    for module in modules:
+        module.owner_id = module.owner.user_id
     versions = mock_versions(modules)
+    for version in versions:
+        version.module_id = version.module.id
+        version.last_editor_id = version.last_editor.user_id
+        version.updated_at = version.updated_at.__str__()
+
+
     return [VersionSchema.model_validate(version) for version in versions]

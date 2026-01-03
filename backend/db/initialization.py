@@ -11,6 +11,7 @@ from sqlalchemy import Engine
 from sqlalchemy import create_engine
 
 from db.model import Base
+from utils.logging.initialization import logger
 
 load_dotenv()
 
@@ -29,11 +30,11 @@ engine = create_engine(DATABASE_URL, echo=(environment == "development"))
 def setup_database(engine: Engine = engine):
     """Set up the database by creating all tables defined in the models."""
     if environment == "development":
-        from utils.development.service import nuke_pave_seed
+        from utils.development.initalization import nuke_pave_seed
 
         try:
             nuke_pave_seed(engine)
         except Exception as e:
-            print(f"Error during development database setup: {e}")
+            logger.error(f"Error during development database setup: {e}")
     else:
         Base.metadata.create_all(engine)

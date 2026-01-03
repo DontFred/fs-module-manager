@@ -58,59 +58,7 @@ def get_all_users(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    all_users = service.get_all_users(db, response)
-
-    # Filter
-    if params.faculty:
-        all_users = [
-            user for user in all_users if user.faculty == params.faculty
-        ]
-    if params.role:
-        all_users = [user for user in all_users if user.role == params.role]
-    if params.search:
-        search_lower = params.search.lower()
-        all_users = [
-            user
-            for user in all_users
-            if search_lower in user.name.lower()
-            or search_lower in user.user_id.lower()
-        ]
-    # Sort
-    if params.sort_by:
-        reverse = params.sort_order == model.SortOrder.DESC.value
-        all_users = sorted(
-            all_users,
-            key=lambda user: getattr(user, params.sort_by),
-            reverse=reverse,
-        )
-    # Field Selection
-    if params.fields:
-        requested_fields = [field.strip() for field in params.fields.split(",")]
-        all_users = [
-            model.UserResponse(
-                **{
-                    field: getattr(user, field)
-                    for field in requested_fields
-                    if hasattr(user, field)
-                }
-            )
-            for user in all_users
-        ]
-    # Pagination
-    offset = (params.page - 1) * params.limit
-    total_count = len(all_users)
-    all_users = all_users[params.offset :]
-    return {
-        "data": all_users[offset : offset + params.limit],
-        "meta": {
-            "total": total_count,
-            "page": params.page,
-            "limit": params.limit,
-            "offset": params.offset,
-            "total_pages": int((total_count - params.offset) / params.limit)
-            + 1,
-        },
-    }
+    return service.get_all_users(db, response, params)
 
 
 @router.post("/", response_model=model.UserResponse, status_code=201)
@@ -137,6 +85,7 @@ def create_user(
             detail="Not enough permissions",
             headers={"WWW-Authenticate": "Bearer scope=admin"},
         )
+
     return service.create_user(user, db, response)
 
 
@@ -172,18 +121,7 @@ def get_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = service.get_user_byid(id, db, response)
-    # Field Selection
-    if params.fields:
-        requested_fields = [field.strip() for field in params.fields.split(",")]
-        user = model.UserResponse(
-            **{
-                field: getattr(user, field)
-                for field in requested_fields
-                if hasattr(user, field)
-            }
-        )
-    return user
+    return service.get_user_byid(id, db, response, params)
 
 
 @router.put("/{id}", response_model=model.UserResponse)
@@ -212,6 +150,7 @@ def update_user(
             detail="Not enough permissions",
             headers={"WWW-Authenticate": "Bearer scope=admin"},
         )
+
     return service.update_user(id, user, db, response)
 
 
@@ -241,6 +180,7 @@ def patch_user(
             detail="Not enough permissions",
             headers={"WWW-Authenticate": "Bearer scope=admin"},
         )
+
     return service.patch_user(id, user, db, response)
 
 
@@ -265,4 +205,5 @@ def delete_user(
             detail="Not enough permissions",
             headers={"WWW-Authenticate": "Bearer scope=admin"},
         )
+
     service.delete_user(id, db, response)

@@ -73,7 +73,7 @@ class UserUpdate(UserBase):
     password: str = Field(..., description="The password for the user")
 
 
-class UserPatch(BaseModel):
+class UserPatch(UserBase):
     """Model for patching user information.
 
     Attributes:

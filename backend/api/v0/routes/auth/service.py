@@ -22,7 +22,7 @@ from db.model import User
 from db.model import UserRole
 from utils.dependency.initialization import argon2_hasher
 from utils.dependency.initialization import db_dep
-from utils.logging.initialization import logging
+from utils.logging.initialization import logger
 
 from . import model
 
@@ -86,7 +86,7 @@ async def authenticate_for_token(
     try:
         user = db.query(User).filter(User.user_id == form_data.username).first()
     except Exception as e:
-        logging.error(
+        logger.error(
             f"Database error while checking existing user before create: {e}"
         )
         raise HTTPException(

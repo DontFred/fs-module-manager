@@ -78,7 +78,7 @@ def mock_versions(mock_version_data: list[Module]) -> list[ModuleVersion]:
                     status = WorkflowStatus.APPROVAL_DEANERY
                     semester = f"SoSe 202{3 + idx}"
                 case 2:
-                    status = WorkflowStatus.VALIDATION_PA
+                    status = WorkflowStatus.VALIDATION_EO
                     semester = f"WiSe 202{3 + idx}/2{4 + idx}"
                 case 3:
                     status = WorkflowStatus.IN_REVIEW

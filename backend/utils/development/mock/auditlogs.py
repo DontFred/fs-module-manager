@@ -128,7 +128,7 @@ def mock_auditlogs(
                 )
             )
 
-        elif version.status == WorkflowStatus.VALIDATION_PA:
+        elif version.status == WorkflowStatus.VALIDATION_EO:
             auditlogs.append(
                 AuditLog(
                     id=get_uuid_seeded(

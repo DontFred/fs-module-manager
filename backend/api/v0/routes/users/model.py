@@ -17,16 +17,14 @@ from db.model import UserRole
 
 
 class UserBase(BaseModel):
-    """Base model for user information.
+    """Base model for user data.
+
+    This class defines the common attributes for user-related data.
 
     Attributes:
-    ----------
-    name : str
-        The name of the user.
-    faculty : Faculty
-        The faculty of the user.
-    role : UserRole
-        The role of the user.
+        name (str): The username of the user.
+        faculty (Faculty): The faculty of the user.
+        role (UserRole): The role of the user.
     """
 
     name: str = Field(..., description="The username of the user")
@@ -37,18 +35,12 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """Model for creating a new user.
 
+    This class defines the structure of the user data required for creating
+    a new user.
+
     Attributes:
-    ----------
-    user_id : str
-        The unique identifier for the user.
-    username : str
-        The username of the user.
-    faculty : Faculty
-        The faculty of the user.
-    role : UserRole
-        The role of the user.
-    password : str
-        The password of the user.
+        user_id (str): The unique identifier for the user.
+        password (str): The password for the user.
     """
 
     user_id: str = Field(..., description="The unique identifier for the user")
@@ -56,36 +48,32 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    """Model for updating user information.
+    """Model for updating user data.
+
+    This class defines the structure of the user data required for updating
+    user information.
 
     Attributes:
-    ----------
-    name : str
-        The name of the user.
-    faculty : Faculty
-        The faculty of the user.
-    role : UserRole
-        The role of the user.
-    password : str
-        The password of the user.
+        name (str): The username of the user.
+        faculty (Faculty): The faculty of the user.
+        role (UserRole): The role of the user.
+        password (str): The password for the user.
     """
 
     password: str = Field(..., description="The password for the user")
 
 
 class UserPatch(UserBase):
-    """Model for patching user information.
+    """Model for partially updating user data.
+
+    This class defines the structure of the user data that can be updated
+    partially, with all fields being optional.
 
     Attributes:
-    ----------
-    name : str | None
-        The name of the user.
-    faculty : Faculty | None
-        The faculty of the user.
-    role : UserRole | None
-        The role of the user.
-    password : str | None
-        The password of the user.
+        name (str | None): The username of the user.
+        faculty (Faculty | None): The faculty of the user.
+        role (UserRole | None): The role of the user.
+        password (str | None): The password for the user.
     """
 
     name: str | None = Field(None, description="The username of the user")
@@ -95,18 +83,15 @@ class UserPatch(UserBase):
 
 
 class UserResponse(BaseModel):
-    """Model for the user response.
+    """Response model for user data.
+
+    This class defines the structure of the user data returned in API responses.
 
     Attributes:
-    ----------
-    user_id : int | None
-        The unique identifier for the user.
-    name : str | None
-        The name of the user.
-    faculty : Faculty | None
-        The faculty of the user.
-    role : UserRole | None
-        The role of the user.
+        user_id (str | None): The unique identifier for the user.
+        name (str | None): The username of the user.
+        faculty (Faculty | None): The faculty of the user.
+        role (UserRole | None): The role of the user.
     """
 
     user_id: str | None = Field(
@@ -119,10 +104,10 @@ class UserResponse(BaseModel):
 
 
 class UserFields(str, enum.Enum):
-    """Enum for user fields.
+    """Enumeration of user fields for sorting and filtering.
 
-    This enum defines the fields that can be selected when retrieving user
-    data.
+    This class defines the fields that can be used for sorting and filtering
+    user data in queries.
     """
 
     USER_ID = "user_id"
@@ -134,29 +119,20 @@ class UserFields(str, enum.Enum):
 class AllUsersQueryParams:
     """Query parameters for retrieving all users.
 
-    This class defines the query parameters that can be used to filter, sort,
-    paginate, and select fields when retrieving a list of users.
+    This class defines the filtering, sorting, pagination, and field selection
+    options available when querying the list of users.
 
     Attributes:
-    ----------
-    faculty : Faculty | None
-        Filter by faculty.
-    role : UserRole | None
-        Filter by role.
-    search : str | None
-        Search by name.
-    sort_by : UserFields
-        Field to sort by (user_id, name, faculty, role).
-    sort_order : SortOrder
-        Sort order (asc or desc).
-    page : int
-        Page number for pagination.
-    limit : int
-        Number of items per page.
-    offset : int
-        Number of items to skip.
-    fields : str | None
-        Comma-separated list of fields to include in the response.
+        faculty (Faculty | None): Filter by faculty.
+        role (UserRole | None): Filter by role.
+        search (str | None): Search by name.
+        sort_by (UserFields): Field to sort by (default: user_id).
+        sort_order (SortOrder): Sort order (asc or desc, default: asc).
+        page (int): Page number (default: 1).
+        limit (int): Items per page (default: 50).
+        offset (int): Items to skip (default: 0).
+        fields (Optional[str]): Comma-separated list of fields to include in
+            the response.
     """
 
     def __init__(

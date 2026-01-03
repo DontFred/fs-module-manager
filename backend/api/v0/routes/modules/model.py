@@ -1,7 +1,7 @@
-"""This module defines Pydantic models for module-related responses.
+"""This module defines Pydantic models for module-related data.
 
-It includes models for listing modules, detailed module information,
-and translations, along with their attributes and configurations.
+It includes models for creating and retrieving modules, versions, translations,
+and audit logs, as well as query parameters for filtering.
 """
 
 import enum
@@ -14,311 +14,343 @@ from pydantic import ConfigDict
 from pydantic import Field
 
 from api.model import SortOrder
-from api.v0.routes.users.model import UserResponse
 from db.model import Faculty
 from db.model import WorkflowStatus
 
 
-class TranslationResponse(BaseModel):
-    """A response model representing a translation in the system.
+class AuditLogResponse(BaseModel):
+    """Response model for audit log entries.
 
     Attributes:
-    ----------
-    id : uuid.UUID
-        The unique identifier for the translation.
-    language : str
-        The language of the translation.
-    title : str
-        The title of the translation.
-    content : str
-        The content of the translation.
-    is_outdated : bool
-        Indicates if the translation is outdated.
+        id (uuid.UUID): Unique identifier for the audit log.
+        action (str): Action performed.
+        comment (str | None): Optional comment.
+        timestamp (datetime): Timestamp of the action.
+        user_id (str): ID of the user who performed the action.
+        user_name (str | None): Name of the user who performed the action.
     """
 
     id: uuid.UUID = Field(
-        ..., description="The unique identifier for the translation"
+        ..., description="Unique identifier for the audit log"
     )
-    language: str = Field(..., description="The language of the translation")
-    title: str = Field(..., description="The title of the translation")
-    content: str = Field(..., description="The content of the translation")
+    action: str = Field(..., description="Action performed")
+    comment: str | None = Field(None, description="Optional comment")
+    timestamp: datetime = Field(..., description="Timestamp of the action")
+    user_id: str = Field(
+        ..., description="ID of the user who performed the action"
+    )
+    user_name: str | None = Field(
+        None, description="Name of the user who performed the action"
+    )
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TranslationBase(BaseModel):
+    """Base model for translation data.
+
+    Attributes:
+        language (str): Language code (e.g., 'en').
+        title (str): Translated title.
+        content (str): Translated content.
+    """
+
+    language: str = Field(
+        ...,
+        min_length=2,
+        max_length=2,
+        description="Language code (e.g., 'en')",
+    )
+    title: str = Field(..., description="Translated title")
+    content: str = Field(..., description="Translated content")
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TranslationCreate(TranslationBase):
+    """Model for creating a translation.
+
+    Attributes:
+        language (str): Language code (e.g., 'en').
+        title (str): Translated title.
+        content (str): Translated content.
+    """
+
+    pass
+
+
+class TranslationUpdate(BaseModel):
+    """Model for updating a translation.
+
+    Attributes:
+        title (str | None): Updated translated title.
+        content (str | None): Updated translated content.
+        is_outdated (bool | None): Indicates if the translation is outdated.
+    """
+
+    title: str | None = Field(None, description="Translated title")
+    content: str | None = Field(None, description="Translated content")
+    is_outdated: bool | None = Field(
+        None, description="Indicates if the translation is outdated"
+    )
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TranslationResponse(TranslationBase):
+    """Response model for translations.
+
+    Attributes:
+        id (uuid.UUID): Unique identifier for the translation.
+        module_version_id (uuid.UUID): Associated module version ID.
+        is_outdated (bool): Indicates if the translation is outdated.
+        language (str): Language code (e.g., 'en').
+        title (str): Translated title.
+        content (str): Translated content.
+    """
+
+    id: uuid.UUID = Field(
+        ..., description="Unique identifier for the translation"
+    )
+    module_version_id: uuid.UUID = Field(
+        ..., description="Associated module version ID"
+    )
     is_outdated: bool = Field(
         ..., description="Indicates if the translation is outdated"
     )
     model_config = ConfigDict(from_attributes=True)
 
 
-class ModuleVersionResponse(BaseModel):
-    """A response model representing a specific version of a module.
+class ModuleVersionBase(BaseModel):
+    """Base model for module version data.
 
     Attributes:
-    ----------
-    id : uuid.UUID
-        The unique identifier for the module version.
-    valid_from_semester : str
-        The semester from which this version is valid.
-    status : WorkflowStatus
-        The workflow status of the module version.
-    ects : int | None
-        The ECTS credits associated with the module version.
-    content : str | None
-        The content description of the module version.
-    updated_at : datetime
-        The timestamp of the last update to the module version.
-    last_editor : UserResponse
-        The user who last edited the module version.
-    translations : list[TranslationResponse]
-        A list of translations associated with the module version.
+        content (str | None): Content of the module version.
+        ects (int | None): ECTS credits for the module version.
+        valid_from_semester (str): Semester from which the module version is
+            valid.
+    """
+
+    content: str | None = Field(None, description="Module version content")
+    ects: int | None = Field(None, ge=0, description="ECTS credits")
+    valid_from_semester: str = Field(..., description="e.g. 'WiSe 2025/26'")
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleVersionCreate(ModuleVersionBase):
+    """Model for creating a module version.
+
+    Attributes:
+        content (str | None): Content of the module version.
+        ects (int | None): ECTS credits for the module version.
+        valid_from_semester (str): Semester from which the module version is
+            valid.
+    """
+
+    pass
+
+
+class ModuleVersionUpdate(BaseModel):
+    """Model for updating a module version.
+
+    Attributes:
+        content (str | None): Updated content of the module version.
+        ects (int | None): Updated ECTS credits for the module version.
+        valid_from_semester (str | None): Updated semester from which the module
+            version is valid.
+    """
+
+    content: str | None = Field(None, description="Module version content")
+    ects: int | None = Field(None, ge=0, description="ECTS credits")
+    valid_from_semester: str | None = Field(
+        None, description="e.g. 'WiSe 2025/26'"
+    )
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleVersionStatusUpdate(BaseModel):
+    """Model for updating the status of a module version.
+
+    Attributes:
+        status (WorkflowStatus): New workflow status to be set.
+        comment (str | None): Optional reason for rejection or approval note.
+    """
+
+    status: WorkflowStatus = Field(..., description="New workflow status")
+    comment: str | None = Field(
+        None, description="Reason for rejection or approval note"
+    )
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleVersionResponse(ModuleVersionBase):
+    """Response model for module versions.
+
+    Attributes:
+        id (uuid.UUID): Unique identifier for the module version.
+        module_id (uuid.UUID): Associated module ID.
+        status (WorkflowStatus): Current workflow status of the module version.
+        updated_at (datetime): Timestamp of the last update.
+        last_editor_id (str | None): ID of the last editor.
+        translations (list[TranslationResponse]): List of translations.
+        audit_logs (list[AuditLogResponse]): List of audit log entries.
+        content (str | None): Content of the module version.
+        ects (int | None): ECTS credits for the module version.
+        valid_from_semester (str): Semester from which the module version is
+            valid.
     """
 
     id: uuid.UUID = Field(
-        ..., description="The unique identifier for the module version"
+        ..., description="Unique identifier for the module version"
     )
-    valid_from_semester: str = Field(
-        ..., description="The semester from which this version is valid"
-    )
+    module_id: uuid.UUID = Field(..., description="Associated module ID")
     status: WorkflowStatus = Field(
-        ..., description="The workflow status of the module version"
-    )
-    ects: int | None = Field(
-        None, description="The ECTS credits associated with the module version"
-    )
-    content: str | None = Field(
-        None, description="The content description of the module version"
+        ..., description="Current workflow status of the module version"
     )
     updated_at: datetime = Field(
-        ...,
-        description="The timestamp of the last update to the module version",
+        ..., description="Timestamp of the last update"
     )
-    last_editor: UserResponse = Field(
-        ..., description="The user who last edited the module version"
+    last_editor_id: str | None = Field(
+        None, description="ID of the last editor"
     )
     translations: list[TranslationResponse] = Field(
-        ...,
-        description="A list of translations associated with the module version",
+        default_factory=list, description="List of translations"
+    )
+    audit_logs: list[AuditLogResponse] = Field(
+        default_factory=list, description="List of audit log entries"
     )
     model_config = ConfigDict(from_attributes=True)
 
 
-class ModuleVersionCompact(BaseModel):
-    """A compact response model representing a version of a module.
+class ModuleBase(BaseModel):
+    """Base model for module data.
 
     Attributes:
-    ----------
-    id : uuid.UUID
-        The unique identifier for the module version.
-    valid_from_semester : str
-        The semester from which this version is valid.
-    status : WorkflowStatus
-        The workflow status of the module version.
-    updated_at : datetime
-        The timestamp of the last update to the module version.
-    last_editor_name : str
-        The name of the user who last edited the module version.
+        module_number (str): Unique module number.
+        title (str): Title of the module.
     """
 
-    id: uuid.UUID = Field(
-        ..., description="The unique identifier for the module version"
-    )
-    valid_from_semester: str = Field(
-        ..., description="The semester from which this version is valid"
-    )
-    status: WorkflowStatus = Field(
-        ..., description="The workflow status of the module version"
-    )
-    updated_at: datetime = Field(
-        ...,
-        description="The timestamp of the last update to the module version",
-    )
-    last_editor_name: str = Field(
-        ...,
-        description="The name of the user who last edited the module version",
-    )
+    module_number: str = Field(..., description="Unique module number")
+    title: str = Field(..., description="Module title")
     model_config = ConfigDict(from_attributes=True)
 
 
-class ModuleListResponse(BaseModel):
-    """A response model representing a module in the system.
+class ModuleCreate(ModuleBase):
+    """Model for creating a module.
 
     Attributes:
-    ----------
-    id : uuid.UUID
-        The unique identifier for the module.
-    module_number : str
-        The module number.
-    title : str
-        The title of the module.
-    owner : UserResponse
-        The owner of the module.
-    faculty : str
-        The faculty of the module.
-    current_semester : str
-        The current semester of the module.
-    current_status : WorkflowStatus
-        The current status of the module.
+        module_number (str): Unique module number.
+        title (str): Title of the module.
+        content (str | None): Initial description of the module.
+        ects (int): ECTS credits for the module.
+        valid_from_semester (str): Semester from which the module is valid.
     """
 
-    id: uuid.UUID = Field(
-        ..., description="The unique identifier for the module"
-    )
-    module_number: str = Field(..., description="The module number")
-    title: str = Field(..., description="The title of the module")
-    owner: UserResponse = Field(..., description="The owner of the module")
-    faculty: Faculty = Field(..., description="The faculty of the module")
-    current_semester: str = Field(
-        ..., description="The current semester of the module"
-    )
-    current_status: WorkflowStatus = Field(
-        ..., description="The current status of the module"
-    )
+    owner_id: str | None = Field(None, description="Owner user ID")
+    content: str | None = Field(None, description="Initial description")
+    ects: int = Field(..., ge=1, description="ECTS credits")
+    valid_from_semester: str = Field(..., description="Valid from semester")
     model_config = ConfigDict(from_attributes=True)
 
 
-class ModuleDetailResponse(BaseModel):
-    """A response model representing detailed information about a module.
+class ModuleUpdate(BaseModel):
+    """Model for updating a module.
 
     Attributes:
-    ----------
-    id : uuid.UUID
-        The unique identifier for the module.
-    module_number : str
-        The module number.
-    title : str
-        The title of the module.
-    faculty : str
-        The faculty of the module.
-    owner : UserResponse
-        The owner of the module.
-    current_version : ModuleVersionResponse
-        The current version of the module with detailed information.
-    history_summary : list[ModuleVersionCompact]
-        A list of previous module versions for history summary.
+        module_number (str | None): Updated unique module number.
+        title (str | None): Updated title of the module.
+        owner_id (str | None): Updated owner user ID.
     """
 
-    id: uuid.UUID = Field(
-        ..., description="The unique identifier for the module"
+    module_number: str | None = Field(None, description="Unique module number")
+    title: str | None = Field(None, description="Module title")
+    owner_id: str | None = Field(None, description="Owner user ID")
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleResponse(ModuleBase):
+    """Response model for modules.
+
+    Attributes:
+        id (uuid.UUID): Unique identifier for the module.
+        owner_id (str | None): Owner user ID.
+        current_version (ModuleVersionResponse | None): Current module version.
+    """
+
+    id: uuid.UUID = Field(..., description="Unique identifier for the module")
+    owner_id: str | None = Field(None, description="Owner user ID")
+    current_version: ModuleVersionResponse | None = Field(
+        None, description="Current module version"
     )
-    module_number: str = Field(..., description="The module number")
-    title: str = Field(..., description="The title of the module")
-    faculty: Faculty = Field(..., description="The faculty of the module")
-    owner: UserResponse = Field(..., description="The owner of the module")
-    current_version: ModuleVersionResponse = Field(
-        ...,
-        description="The current version of the module with details",
-    )
-    history_summary: list[ModuleVersionCompact] = Field(
-        ...,
-        description="A list of previous module versions for history summary",
+    released_version: ModuleVersionResponse | None = Field(
+        None, description="Latest released module version"
     )
     model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleFields(str, enum.Enum):
-    """Enum for module fields.
-
-    This enum defines the fields that can be selected when retrieving module
-    data.
-    """
-
-    id = "id"
-    module_number = "module_number"
-    title = "title"
-    faculty = "faculty"
-    owner = "owner"
-    current_semester = "current_semester"
-    current_status = "current_status"
-
-
-class AllModulesQueryParams:
-    """Query parameters for retrieving all modules.
-
-    This class defines the query parameters used for filtering, sorting,
-    paginating, and selecting fields when retrieving a list of modules.
+    """Enumeration of fields for sorting modules.
 
     Attributes:
-    ----------
-    faculty : Faculty | None
-        Filter by faculty.
-    owner_id : str | None
-        Filter by owner user ID.
-    current_semester : str | None
-        Filter by current semester.
-    current_status : WorkflowStatus | None
-        Filter by current workflow status.
-    search : str | None
-        Search by title or module number.
-    sort_by : ModuleFields
-        Field to sort by.
-    sort_order : SortOrder
-        Sort order (ascending or descending).
-    page : int
-        Page number for pagination.
-    limit : int
-        Number of items per page.
-    offset : int
-        Number of items to skip.
-    fields : str | None
-        Comma-separated list of fields to include in the response.
+        MODULE_NUMBER (str): Field for module number.
+        TITLE (str): Field for module title.
+        OWNER (str): Field for module owner.
+        UPDATED_AT (str): Field for last updated timestamp.
+    """
+
+    MODULE_NUMBER = "module_number"
+    TITLE = "title"
+    OWNER = "owner"
+    UPDATED_AT = "updated_at"
+
+
+class ModuleQueryParams:
+    """Query parameters for filtering and sorting modules.
+
+    Attributes:
+        faculty (Faculty | None): Filter by faculty.
+        owner_id (str | None): Filter by owner ID.
+        status (WorkflowStatus | None): Filter by current version status.
+        search (str | None): Search in title or number.
+        sort_by (ModuleFields): Field to sort by.
+        sort_order (SortOrder): Sort order (ascending or descending).
+        page (int): Page number for pagination.
+        limit (int): Number of items per page.
+        offset (int): Number of items to skip.
+        fields (str | None): Comma-separated list of fields to include in the
+            response.
     """
 
     def __init__(
         self,
-        # Filtering
         faculty: Faculty | None = Query(None, description="Filter by faculty"),
-        owner_id: str | None = Query(
-            None, description="Filter by owner user ID"
-        ),
-        current_semester: str | None = Query(
-            None, description="Filter by current semester"
-        ),
-        current_status: WorkflowStatus | None = Query(
-            None, description="Filter by current workflow status"
+        owner_id: str | None = Query(None, description="Filter by owner ID"),
+        status: WorkflowStatus | None = Query(
+            None, description="Filter by current version status"
         ),
         search: str | None = Query(
-            None, description="Search by title or module number"
+            None, description="Search in title or number"
         ),
-        # Sorting
         sort_by: ModuleFields = Query(
-            "id",
-            pattern="^("
-            + "|".join([field.value for field in ModuleFields])
-            + ")$",
-            description=(
-                "Field to sort by (id, module_number, title, faculty, owner, "
-                + "current_semester, current_status)"
-            ),
+            ModuleFields.TITLE, description="Field to sort by"
         ),
-        sort_order: SortOrder = Query(
-            "asc",
-            pattern="^("
-            + "|".join([order.value for order in SortOrder])
-            + ")$",
-            description="Sort order (asc or desc)",
-        ),
-        # Pagination
-        page: int = Query(1, ge=1, description="Page number for pagination"),
-        limit: int = Query(
-            50, ge=1, le=100, description="Number of items per page"
-        ),
+        sort_order: SortOrder = Query(SortOrder.ASC, description="Sort order"),
+        page: int = Query(1, ge=1, description="Page number"),
+        limit: int = Query(50, ge=1, le=100, description="Items per page"),
         offset: int = Query(0, ge=0, description="Number of items to skip"),
         # Field selection
         fields: str | None = Query(
             None,
             description=(
                 "Comma-separated list of fields to include in the response",
-                "(e.g. 'id,title')",
+                "(e.g. 'id,module_number,title')",
             ),
         ),
     ):
-        """Initialize query parameters for retrieving all modules.
+        """Initialize query parameters for filtering and sorting modules.
 
         Args:
             faculty (Faculty | None): Filter by faculty.
-            owner_id (str | None): Filter by owner user ID.
-            current_semester (str | None): Filter by current semester.
-            current_status (WorkflowStatus | None): Filter by current workflow
-                status.
-            search (str | None): Search by title or module number.
+            owner_id (str | None): Filter by owner ID.
+            status (WorkflowStatus | None): Filter by current version status.
+            search (str | None): Search in title or number.
             sort_by (ModuleFields): Field to sort by.
             sort_order (SortOrder): Sort order (ascending or descending).
             page (int): Page number for pagination.
@@ -329,8 +361,7 @@ class AllModulesQueryParams:
         """
         self.faculty = faculty
         self.owner_id = owner_id
-        self.current_semester = current_semester
-        self.current_status = current_status
+        self.status = status
         self.search = search
         self.sort_by = sort_by
         self.sort_order = sort_order

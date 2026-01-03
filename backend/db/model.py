@@ -87,7 +87,7 @@ class WorkflowStatus(str, enum.Enum):
         Represents a draft status.
     IN_REVIEW : str
         Represents a status where the module is under review by the coordinator.
-    VALIDATION_PA : str
+    VALIDATION_EO : str
         Represents a status where the module is being validated by the
         examination office.
     APPROVAL_DEANERY : str
@@ -101,7 +101,7 @@ class WorkflowStatus(str, enum.Enum):
 
     DRAFT = "DRAFT"
     IN_REVIEW = "IN_REVIEW"
-    VALIDATION_PA = "VALIDATION_PA"
+    VALIDATION_EO = "VALIDATION_EO"
     APPROVAL_DEANERY = "APPROVAL_DEANERY"
     RELEASED = "RELEASED"
     IN_REVISION = "IN_REVISION"

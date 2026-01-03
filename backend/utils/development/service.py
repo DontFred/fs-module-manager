@@ -1,35 +1,23 @@
-"""This module provides utility functions for development exercises.
+"""Utility functions for development purposes.
 
-It includes functions to reset the database, seed it with initial data,
-and create default users.
+This module provides functions to generate UUIDs based on a seeded namespace.
 """
 
-from sqlalchemy import Engine
 
-from db.model import Base
-from utils.logging.initialization import logging
+def get_uuid_seeded(name: str) -> str:
+    """Generate a UUID based on a seeded namespace and the given name.
 
+    Parameters:
+    ----------
+    name : str
+        The name to be used for generating the UUID.
 
-def nuke_pave_seed(engine: Engine):
-    """Reset the database, seed it with initial data, and create default users.
-
-    This function initializes the database by removing existing data,
-    and then seeds it with predefined user accounts for various roles.
+    Returns:
+    -------
+    str
+        A UUID string generated using the seeded namespace and the name.
     """
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
-    from utils.dependency.initialization import get_db
+    import uuid
 
-    db = next(get_db())
-
-    from .mock.user import mock_user
-
-    users = mock_user()
-
-    try:
-        db.add_all(users)
-        db.commit()
-    except Exception as e:
-        logging.error(f"Error while seeding database: {e}")
-        db.rollback()
-        raise e
+    namespace_seed = uuid.uuid5(uuid.NAMESPACE_DNS, "flensburg.project.se")
+    return str(uuid.uuid5(namespace_seed, name))

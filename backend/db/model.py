@@ -1,13 +1,13 @@
 """This module defines the database models for the application.
 
 It includes models for users, modules, module versions, translations, and audit
-logs, as well as enumerations for user roles and workflow statuses.
+logs, as well as enumerations for user roles, faculty and workflow statuses.
 """
 
 import enum
 import uuid
+from datetime import UTC
 from datetime import datetime
-from datetime import timezone
 
 from sqlalchemy import Boolean
 from sqlalchemy import DateTime
@@ -87,7 +87,7 @@ class WorkflowStatus(str, enum.Enum):
         Represents a draft status.
     IN_REVIEW : str
         Represents a status where the module is under review by the coordinator.
-    VALIDATION_PA : str
+    VALIDATION_EO : str
         Represents a status where the module is being validated by the
         examination office.
     APPROVAL_DEANERY : str
@@ -99,11 +99,11 @@ class WorkflowStatus(str, enum.Enum):
         Represents a status where the module is under revision.
     """
 
-    DRAFT = "DRAFT"  # Entwurf
-    IN_REVIEW = "IN_REVIEW"  # In Prüfung (Coordinator)
-    VALIDATION_PA = "VALIDATION_PA"  # In Validierung (Prüfungsamt)
-    APPROVAL_DEANERY = "APPROVAL_DEANERY"  # In Freigabe (Dekanat)
-    RELEASED = "RELEASED"  # Freigegeben
+    DRAFT = "DRAFT"
+    IN_REVIEW = "IN_REVIEW"
+    VALIDATION_EO = "VALIDATION_EO"
+    APPROVAL_DEANERY = "APPROVAL_DEANERY"
+    RELEASED = "RELEASED"
     IN_REVISION = "IN_REVISION"
 
 
@@ -112,12 +112,16 @@ class User(Base):
 
     Attributes:
     ----------
-    id : str
+    user_id : str
         The unique identifier for the user.
     name : str
         The name of the user.
+    faculty : Faculty
+        The faculty the user belongs to.
     role : UserRole
         The role of the user within the application.
+    password : str
+        The hashed password of the user.
     owned_modules : list[Module]
         The list of modules owned by the user.
     edited_versions : list[ModuleVersion]
@@ -229,8 +233,8 @@ class ModuleVersion(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.UTC),
-        onupdate=lambda: datetime.now(timezone.UTC),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
     last_editor_id: Mapped[str | None] = mapped_column(
         ForeignKey("users.user_id")
@@ -305,7 +309,7 @@ class AuditLog(Base):
 
     Attributes:
     ----------
-    id : int
+    id : uuid.UUID
         The unique identifier for the audit log entry.
     module_version_id : uuid.UUID
         The ID of the module version this log entry is associated with.
@@ -324,8 +328,8 @@ class AuditLog(Base):
     """
 
     __tablename__ = "audit_logs"
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     module_version_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("module_versions.id"), nullable=False
@@ -336,7 +340,7 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String(100))
     comment: Mapped[str | None] = mapped_column(Text)
     timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.UTC)
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
     module_version: Mapped[ModuleVersion] = relationship(
         "ModuleVersion", back_populates="audit_logs"

@@ -6,7 +6,7 @@ from sqlalchemy import exc
 from sqlalchemy import text
 
 from utils.dependency.initialization import db_dep
-from utils.logging.initialization import logging
+from utils.logging.initialization import logger
 
 from . import model
 
@@ -38,7 +38,7 @@ def is_server_ready(db: db_dep, response: Response) -> model.ReadyResponse:
         overall_status = "pass"
         response.status_code = status.HTTP_200_OK
     except (exc.OperationalError, exc.DatabaseError) as e:
-        logging.error(f"Database readiness check failed: {e}")
+        logger.error(f"Database readiness check failed: {e}")
 
         health_details["database"] = "fail"
         overall_status = "fail"

@@ -41,7 +41,7 @@ class UserSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-def mock_user():
+def mock_user() -> list[User]:
     """Create and return a list of mock User objects.
 
     This function generates a predefined set of User objects with

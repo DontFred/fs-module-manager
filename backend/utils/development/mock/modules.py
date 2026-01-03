@@ -118,6 +118,4 @@ def get_mock_modules() -> list[ModuleSchema]:
     for module in modules:
         module.owner_id = module.owner.user_id
 
-    return [
-        ModuleSchema.model_validate(module) for module in modules
-    ]
+    return [ModuleSchema.model_validate(module) for module in modules]

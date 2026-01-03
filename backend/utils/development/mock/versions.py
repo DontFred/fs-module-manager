@@ -124,5 +124,4 @@ def get_mock_versions() -> list[ModuleVersion]:
         version.last_editor_id = version.last_editor.user_id
         version.updated_at = version.updated_at.__str__()
 
-
     return [VersionSchema.model_validate(version) for version in versions]

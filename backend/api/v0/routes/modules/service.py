@@ -872,10 +872,12 @@ def update_version_content(
     if (
         user_token.id != version.module.owner_id
     ) and user_token.scopes != "admin":
-        logger.debug(f"User {user_token.id} is not the owner "
-                     f"{version.module.owner_id} of the module "
-                     f"{version.module.id} and cannot update the version "
-                     f"{version.id}.")
+        logger.debug(
+            f"User {user_token.id} is not the owner "
+            f"{version.module.owner_id} of the module "
+            f"{version.module.id} and cannot update the version "
+            f"{version.id}."
+        )
         raise HTTPException(
             status_code=403,
             detail="Only the owner can update this version.",

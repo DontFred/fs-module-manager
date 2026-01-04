@@ -26,9 +26,7 @@ load_dotenv()
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["20/minute"],
-    enabled=False
-    if os.getenv("ENVIRONMENT") == "development"
-    else True,
+    enabled=False if os.getenv("ENVIRONMENT") == "development" else True,
 )
 
 

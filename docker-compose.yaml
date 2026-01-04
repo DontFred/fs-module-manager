@@ -20,7 +20,7 @@ services:
     image: fsmm-backend
     container_name: fsmm-backend
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "${NEXT_PUBLIC_BACKEND_PORT}:${NEXT_PUBLIC_BACKEND_PORT}"
     env_file:
       - .env
     environment:
@@ -29,7 +29,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/v0/health/running"]
+      test: ["CMD", "curl", "-f", "http://localhost:${NEXT_PUBLIC_BACKEND_PORT}/v0/health/running"]
       interval: 10s
       timeout: 5s
       retries: 5

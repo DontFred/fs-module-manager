@@ -22,7 +22,7 @@ def main():
     """Main function to start the backend service."""
     logger.debug("Loading environment variables...")
     load_dotenv()
-    port = int(os.getenv("BACKEND_PORT", 8000))
+    port = int(os.getenv("NEXT_PUBLIC_BACKEND_PORT", 8000))
     environment = os.getenv("ENVIRONMENT", "development")
     reload = True if environment == "development" else False
     logger.debug("Setting up the database...")

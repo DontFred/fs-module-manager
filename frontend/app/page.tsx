@@ -1,43 +1,22 @@
-import {
-  checkReadyV0HealthReadyGet,
-  checkRunningV0HealthRunningGet,
-} from "@/api-sdk";
+import { Button } from "@/components/ui/button";
+import { logout } from "@/app/actions/auth";
+import { verifySession } from "@/lib/dal";
 
 export default async function Home() {
-  try {
-    const { data, error } = await checkReadyV0HealthReadyGet({
-      cache: "no-store",
-    });
-    const { data: data2, error: error2 } = await checkRunningV0HealthRunningGet(
-      {
-        cache: "no-store",
-      },
-    );
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-        <div className="text-center">
-          <h1 className="mb-4 text-4xl font-bold text-zinc-800 dark:text-zinc-200">
-            {data
-              ? `API is ready: ${JSON.stringify(data)}`
-              : `Error: ${JSON.stringify(error)}`}
-          </h1>
-          <h1 className="mb-4 text-4xl font-bold text-zinc-800 dark:text-zinc-200">
-            {data
-              ? `API is running: ${JSON.stringify(data2)}`
-              : `Error: ${JSON.stringify(error2)}`}
-          </h1>
+  const session = await verifySession();
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <div className="text-center">
+        <h1 className="mb-4 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+          Welkommen zum Module Manager Frontend!
+        </h1>
+        <p className="mb-8 text-zinc-700 dark:text-zinc-300">
+          Du bist eingeloggt als {session.name}.
+        </p>
+        <div className="text-zinc-800 dark:text-zinc-200">
+          <Button onClick={logout}>Logout</Button>
         </div>
       </div>
-    );
-  } catch (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-        <div className="text-center">
-          <h1 className="mb-4 text-4xl font-bold text-zinc-800 dark:text-zinc-200">
-            Backend not working: {String(error)}
-          </h1>
-        </div>
-      </div>
-    );
-  }
+    </div>
+  );
 }

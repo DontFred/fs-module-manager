@@ -9,8 +9,8 @@
   "scripts": {
     "clean": "rm -rf bun.lock && rm -rf node_modules",
     "openapi-ts": "cd frontend && bun run openapi-ts",
-    "dev:backend": "cd backend && uv run ./main.py",
-    "dev:db": "docker compose up",
+    "dev:backend": "wait-on tcp:5432 && cd backend && uv run ./main.py",
+    "dev:db": "docker compose -f docker-compose.dev.yaml up -d",
     "dev:frontend": "cd frontend && bun run dev",
     "dev": "concurrently \"bun run dev:db\" \"bun run dev:backend\" \"bun run dev:frontend\"",
     "lint:frontend": "cd frontend && bun run lint --fix",
@@ -18,13 +18,14 @@
     "lint": "concurrently \"bun run lint:frontend\" \"bun run lint:backend\"",
     "test:backend": "cd backend && uv run pytest",
     "test": "bun run test:backend",
-
-    "prepare": "husky"
+    "prepare": "husky",
+    "install": "bun install && cd backend && uv sync --dev"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "concurrently": "^9.2.1",
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "wait-on": "^9.0.3"
   },
   "peerDependencies": {
     "typescript": "^5"

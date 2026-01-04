@@ -21,7 +21,9 @@ DB_DATABASE = os.getenv("DB_DATABASE", "modules")
 environment = os.getenv("ENVIRONMENT", "development")
 
 if environment == "development":
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@127.0.0.1:5432/{DB_DATABASE}"
+    DATABASE_URL = (
+        f"postgresql://{DB_USER}:{DB_PASSWORD}@127.0.0.1:5432/{DB_DATABASE}"
+    )
 else:
     DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@db:5432/{DB_DATABASE}"
 

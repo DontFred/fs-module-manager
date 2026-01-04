@@ -7,5 +7,42 @@ services:
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
       - ./postgresql:/var/lib/postgresql
+    # Uncomment the following lines to expose PostgreSQL port to the host machine
+    # ports:
+    #   - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: ./backend
+    image: fsmm-backend
+    container_name: fsmm-backend
     ports:
-      - 5432:5432
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/v0/health/running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+  frontend:
+    build: ./frontend
+    image: fsmm-frontend
+    container_name: fsmm-frontend
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      backend:
+        condition: service_healthy
+    

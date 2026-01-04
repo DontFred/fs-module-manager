@@ -1,0 +1,9 @@
+Dockerfile
+.dockerignore
+.venv
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+backend.log
+README.md

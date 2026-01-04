@@ -35,7 +35,7 @@ def main():
     )
     uvicorn.run(
         "api.initialization:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=port,
         reload=reload,
         log_config=config_path,

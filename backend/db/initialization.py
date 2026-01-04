@@ -20,9 +20,10 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "please_change_me")
 DB_DATABASE = os.getenv("DB_DATABASE", "modules")
 environment = os.getenv("ENVIRONMENT", "development")
 
-DATABASE_URL = (
-    f"postgresql://{DB_USER}:{DB_PASSWORD}@127.0.0.1:5432/{DB_DATABASE}"
-)
+if environment == "development":
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@127.0.0.1:5432/{DB_DATABASE}"
+else:
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@db:5432/{DB_DATABASE}"
 
 engine = create_engine(DATABASE_URL, echo=(environment == "development"))
 

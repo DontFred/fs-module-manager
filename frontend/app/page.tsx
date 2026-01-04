@@ -8,7 +8,7 @@ export default async function Home() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <div className="text-center">
         <h1 className="mb-4 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          Welkommen zum Module Manager Frontend!
+          Willkommen zum Module Manager Frontend!
         </h1>
         <p className="mb-8 text-zinc-700 dark:text-zinc-300">
           Du bist eingeloggt als {session.name}.

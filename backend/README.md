@@ -1,8 +1,8 @@
 # Backend - Module Manager
 
-The RESTful API service for the Module Manager, providing data persistence, business logic, and authentication.
-
 Deutsche version siehe unten.
+
+The RESTful API service for the Module Manager, providing data persistence, business logic, and authentication.
 
 ## Tech Stack
 

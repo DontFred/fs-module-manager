@@ -1,8 +1,8 @@
 # FS Module Manager
 
-A full-stack application for managing university modules, designed to handle complex workflows, versioning, translations, and role-based access control.
-
 Deutsche version siehe unten.
+
+A full-stack application for managing university modules, designed to handle complex workflows, versioning, translations, and role-based access control.
 
 ## Project Structure
 
@@ -32,7 +32,7 @@ Ensure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/DontFred/fs-module-manager
 cd fs-module-manager
 
 ```
@@ -104,7 +104,7 @@ bun run dev
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/DontFred/fs-module-manager
 cd fs-module-manager
 
 ```
@@ -136,7 +136,7 @@ ARGON_HASH_LENGTH=32
 ARGON_SALT_LENGTH=16
 
 # ENVIRONMENTS
-ENVIRONMENT="development"
+ENVIRONMENT="production"
 
 # SERVER URL
 NEXT_PUBLIC_SERVER_URL="http://127.0.0.1"
@@ -184,11 +184,11 @@ Stellen Sie sicher, dass Folgendes installiert ist:
 * **[Bun](https://bun.sh/)**: Wird als Paketmanager und Skript-Runner verwendet.
 * **[uv](https://github.com/astral-sh/uv)**: Ein schneller Python-Paket- und Projektmanager.
 
-## Erste Schritte
+## Erste Schritte für development
 
 ### 1. Repository klonen
 ```bash
-git clone <repository-url>
+git clone https://github.com/DontFred/fs-module-manager
 cd fs-module-manager
 
 ```
@@ -246,7 +246,7 @@ bun run dev
 
 ```
 
-## Verfügbare Skripte
+### Verfügbare Skripte
 
 * `bun run dev`: Startet den gesamten Stack (Docker DB, Backend, Frontend).
 * `bun run dev:db`: Startet nur den Datenbank-Container.
@@ -255,6 +255,56 @@ bun run dev
 * `bun run lint`: Führt Linter für Frontend (`eslint`) und Backend (`ruff`) aus.
 * `bun run test`: Führt Backend-Tests (`pytest`) aus.
 * `bun run clean`: Entfernt `node_modules` und Lockfiles.
+
+## Erste Schritte fürs hosten
+
+### 1. Repository klonen
+```bash
+git clone https://github.com/DontFred/fs-module-manager
+cd fs-module-manager
+
+```
+
+### 2. Umgebung einrichten
+
+Erstellen Sie eine `.env`-Datei im Hauptverzeichnis. Basierend auf der Konfiguration sollte diese Folgendes enthalten:
+
+```ini
+# PORTS
+NEXT_PUBLIC_BACKEND_PORT=8000
+FRONTEND_PORT=3000
+
+# DATABASE
+DB_USERNAME="admin"
+DB_PASSWORD="please_change_me"
+DB_DATABASE="modules"
+
+# JWT
+JWT_SECRET_KEY="please1change1me"
+JWT_ALGORITHM="HS256"
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=240
+
+# ARGON2
+ARGON_TIME_COST=3
+ARGON_MEMORY_COST=65536
+ARGON_PARALLELISM=4
+ARGON_HASH_LENGTH=32
+ARGON_SALT_LENGTH=16
+
+# ENVIRONMENTS
+ENVIRONMENT="production"
+
+# SERVER URL
+NEXT_PUBLIC_SERVER_URL="http://127.0.0.1"
+
+```
+
+### 3. Build und starte die Anwendung
+Benutze docker compose um die Anwendung zu builden und zu starten
+
+```bash
+docker compose --build -d
+```
 
 ## Lizenz
 

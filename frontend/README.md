@@ -1,8 +1,8 @@
 # Frontend - Module Manager
 
-The user interface for the Module Manager, offering a responsive and interactive dashboard for university staff.
-
 Deutsche version siehe unten.
+
+The user interface for the Module Manager, offering a responsive and interactive dashboard for university staff.
 
 ## Tech Stack
 

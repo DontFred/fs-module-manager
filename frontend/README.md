@@ -4,6 +4,8 @@ Deutsche version siehe unten.
 
 The user interface for the Module Manager, offering a responsive and interactive dashboard for university staff.
 
+By Morgan Fritzsche 780001 and Frederik Grimm 780020
+
 ## Tech Stack
 
 * **Framework**: Next.js 16 (App Router)
@@ -65,6 +67,8 @@ This software is licensed under **CC BY-NC-SA 4.0**. Usage is restricted to non-
 # Frontend - Modul-Manager - DEU
 
 Die Benutzeroberfläche für den Modul-Manager, die ein responsives und interaktives Dashboard für Universitätsmitarbeiter bietet.
+
+Von Morgan Fritzsche 780001 und Frederik Grimm 780020
 
 ## Technologie-Stack
 

@@ -4,6 +4,8 @@ Deutsche version siehe unten.
 
 The RESTful API service for the Module Manager, providing data persistence, business logic, and authentication.
 
+By Morgan Fritzsche 780001 and Frederik Grimm 780020
+
 ## Tech Stack
 
 * **Language**: Python (>=3.14)
@@ -64,6 +66,8 @@ This software is licensed under **CC BY-NC-SA 4.0**. Usage is restricted to non-
 # Backend - Modul-Manager - DEU
 
 Der RESTful API-Dienst für den Modul-Manager, der Datenpersistenz, Geschäftslogik und Authentifizierung bereitstellt.
+
+Von Morgan Fritzsche 780001 und Frederik Grimm 780020
 
 ## Technologie-Stack
 

@@ -4,6 +4,8 @@ Deutsche version siehe unten.
 
 A full-stack application for managing university modules, designed to handle complex workflows, versioning, translations, and role-based access control.
 
+By Morgan Fritzsche 780001 and Frederik Grimm 780020
+
 ## Project Structure
 
 This is a monorepo containing:
@@ -159,6 +161,8 @@ This software is licensed under **CC BY-NC-SA 4.0**. Usage is restricted to non-
 # FS Modul-Manager - DEU
 
 Eine Full-Stack-Anwendung zur Verwaltung von Universitätsmodulen, entwickelt für die Handhabung komplexer Workflows, Versionierung, Übersetzungen und rollenbasierter Zugriffskontrolle.
+
+Von Morgan Fritzsche 780001 und Frederik Grimm 780020
 
 ## Projektstruktur
 
